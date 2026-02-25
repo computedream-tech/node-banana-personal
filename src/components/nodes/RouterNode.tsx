@@ -9,12 +9,12 @@ import type { WorkflowNode, RouterNodeData } from "@/types";
 const ALL_HANDLE_TYPES = ["image", "text", "video", "audio", "3d", "easeCurve"] as const;
 
 const HANDLE_COLORS: Record<(typeof ALL_HANDLE_TYPES)[number], string> = {
-  image: "#3b82f6",      // blue-500
-  text: "#10b981",       // emerald-500
-  video: "#a855f7",      // purple-500
-  audio: "#f59e0b",      // amber-500
-  "3d": "#06b6d4",       // cyan-500
-  easeCurve: "#ef4444",  // red-500
+  image: "#10b981",             // emerald — matches globals.css
+  text: "#3b82f6",              // blue — matches globals.css
+  video: "#ffffff",             // white — default handle style
+  audio: "rgb(167, 139, 250)", // violet — matches GenerateAudioNode/OutputNode
+  "3d": "#f97316",              // orange — matches globals.css
+  easeCurve: "#ffffff",         // white — default handle style
 };
 
 export const RouterNode = memo(({ id, data, selected }: NodeProps<WorkflowNode>) => {
