@@ -233,6 +233,15 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
     [id, updateNodeData]
   );
 
+  const handleImageSearchToggle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const useImageSearch = e.target.checked;
+      updateNodeData(id, { useImageSearch });
+      saveNanoBananaDefaults({ useImageSearch });
+    },
+    [id, updateNodeData]
+  );
+
   const handleParametersChange = useCallback(
     (parameters: Record<string, unknown>) => {
       updateNodeData(id, { parameters });
@@ -725,6 +734,18 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
               className="w-3 h-3 rounded border-neutral-700 bg-neutral-900/50 text-neutral-600 focus:ring-1 focus:ring-neutral-600 focus:ring-offset-0"
             />
             <span>Google Search</span>
+          </label>
+        )}
+        {/* Image Search toggle - only for Nano Banana 2 */}
+        {currentProvider === "gemini" && currentModelId === "nano-banana-2" && (
+          <label className="flex items-center gap-1.5 text-[10px] text-neutral-300 shrink-0 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={nodeData.useImageSearch}
+              onChange={handleImageSearchToggle}
+              className="w-3 h-3 rounded border-neutral-700 bg-neutral-900/50 text-neutral-600 focus:ring-1 focus:ring-neutral-600 focus:ring-offset-0"
+            />
+            <span>Image Search</span>
           </label>
         )}
       </div>

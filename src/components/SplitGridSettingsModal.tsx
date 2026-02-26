@@ -49,6 +49,7 @@ export function SplitGridSettingsModal({
   const [resolution, setResolution] = useState(nodeData.generateSettings.resolution);
   const [model, setModel] = useState(nodeData.generateSettings.model);
   const [useGoogleSearch, setUseGoogleSearch] = useState(nodeData.generateSettings.useGoogleSearch);
+  const [useImageSearch, setUseImageSearch] = useState(nodeData.generateSettings.useImageSearch);
 
   const { rows, cols } = LAYOUT_OPTIONS[selectedLayoutIndex];
   const targetCount = rows * cols;
@@ -108,6 +109,7 @@ export function SplitGridSettingsModal({
         resolution,
         model,
         useGoogleSearch,
+        useImageSearch,
       });
 
       // Create prompt node (below imageInput)
@@ -158,6 +160,7 @@ export function SplitGridSettingsModal({
         resolution,
         model,
         useGoogleSearch,
+        useImageSearch,
       },
       childNodeIds,
       gridRows: rows,
@@ -168,7 +171,7 @@ export function SplitGridSettingsModal({
     onClose();
   }, [
     nodeId, targetCount, defaultPrompt, aspectRatio, resolution,
-    model, useGoogleSearch, rows, cols, selectedLayoutIndex, getNodeById,
+    model, useGoogleSearch, useImageSearch, rows, cols, selectedLayoutIndex, getNodeById,
     addNode, updateNodeData, onConnect, addEdgeWithType, onClose
   ]);
 
@@ -316,6 +319,19 @@ export function SplitGridSettingsModal({
                       Google Search
                     </label>
                   </div>
+                  {model === "nano-banana-2" && (
+                    <div className="flex items-end pb-2">
+                      <label className="flex items-center gap-2 text-sm text-neutral-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={useImageSearch}
+                          onChange={(e) => setUseImageSearch(e.target.checked)}
+                          className="w-4 h-4 rounded border-neutral-600 bg-neutral-900"
+                        />
+                        Image Search
+                      </label>
+                    </div>
+                  )}
                 </>
               )}
             </div>

@@ -141,6 +141,7 @@ export const createDefaultNodeData = (type: NodeType): WorkflowNodeData => {
       const aspectRatio = nodeDefaults.generateImage?.aspectRatio ?? legacyDefaults.aspectRatio;
       const resolution = nodeDefaults.generateImage?.resolution ?? legacyDefaults.resolution;
       const useGoogleSearch = nodeDefaults.generateImage?.useGoogleSearch ?? legacyDefaults.useGoogleSearch;
+      const useImageSearch = nodeDefaults.generateImage?.useImageSearch ?? legacyDefaults.useImageSearch;
 
       return {
         inputImages: [],
@@ -151,6 +152,7 @@ export const createDefaultNodeData = (type: NodeType): WorkflowNodeData => {
         model: legacyDefaults.model, // Keep legacy model field for backward compat
         selectedModel,
         useGoogleSearch,
+        useImageSearch,
         status: "idle",
         error: null,
         imageHistory: [],
@@ -222,6 +224,7 @@ export const createDefaultNodeData = (type: NodeType): WorkflowNodeData => {
           resolution: "1K",
           model: "nano-banana-pro",
           useGoogleSearch: false,
+          useImageSearch: false,
         },
         childNodeIds: [],
         gridRows: 2,

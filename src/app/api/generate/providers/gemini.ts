@@ -28,7 +28,8 @@ export async function generateWithGemini(
   model: ModelType,
   aspectRatio?: string,
   resolution?: string,
-  useGoogleSearch?: boolean
+  useGoogleSearch?: boolean,
+  useImageSearch?: boolean
 ): Promise<NextResponse<GenerateResponse>> {
   console.log(`[API:${requestId}] Gemini generation - Model: ${model}, Images: ${images?.length || 0}, Prompt: ${prompt?.length || 0} chars`);
 
@@ -82,7 +83,13 @@ export async function generateWithGemini(
 
   // Add tools array for Google Search (Nano Banana Pro and Nano Banana 2)
   const tools = [];
-  if ((model === "nano-banana-pro" || model === "nano-banana-2") && useGoogleSearch) {
+  if (model === "nano-banana-2" && (useGoogleSearch || useImageSearch)) {
+    // Nano Banana 2 uses searchTypes to enable web and/or image search independently
+    const searchTypes: Record<string, Record<string, never>> = {};
+    if (useGoogleSearch) searchTypes.webSearch = {};
+    if (useImageSearch) searchTypes.imageSearch = {};
+    tools.push({ googleSearch: { searchTypes } });
+  } else if (model === "nano-banana-pro" && useGoogleSearch) {
     tools.push({ googleSearch: {} });
   }
 
