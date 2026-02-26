@@ -20,10 +20,12 @@ const LAYOUT_OPTIONS = [
   { rows: 2, cols: 5 },
 ] as const;
 
-const ASPECT_RATIOS: AspectRatio[] = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
+const BASE_ASPECT_RATIOS: AspectRatio[] = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
+const EXTENDED_ASPECT_RATIOS: AspectRatio[] = ["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"];
 const RESOLUTIONS: Resolution[] = ["1K", "2K", "4K"];
 const MODELS: { value: ModelType; label: string }[] = [
   { value: "nano-banana", label: "Nano Banana" },
+  { value: "nano-banana-2", label: "Nano Banana 2" },
   { value: "nano-banana-pro", label: "Nano Banana Pro" },
 ];
 
@@ -50,7 +52,8 @@ export function SplitGridSettingsModal({
 
   const { rows, cols } = LAYOUT_OPTIONS[selectedLayoutIndex];
   const targetCount = rows * cols;
-  const isNanoBananaPro = model === "nano-banana-pro";
+  const isNanoBananaPro = model === "nano-banana-pro" || model === "nano-banana-2";
+  const aspectRatios = model === "nano-banana-2" ? EXTENDED_ASPECT_RATIOS : BASE_ASPECT_RATIOS;
 
   const handleCreate = useCallback(() => {
     const splitNode = getNodeById(nodeId);
@@ -279,7 +282,7 @@ export function SplitGridSettingsModal({
                   onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
                   className="w-full px-3 py-2 bg-neutral-900 border border-neutral-600 rounded text-neutral-100 text-sm focus:outline-none focus:border-neutral-500"
                 >
-                  {ASPECT_RATIOS.map((ar) => (
+                  {aspectRatios.map((ar) => (
                     <option key={ar} value={ar}>{ar}</option>
                   ))}
                 </select>

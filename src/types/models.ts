@@ -5,15 +5,19 @@
  * aspect ratios, resolutions, and model identifiers.
  */
 
-// Aspect Ratios (supported by both Nano Banana and Nano Banana Pro)
+// Aspect Ratios (all models support the base 10; Nano Banana 2 adds 1:4, 1:8, 4:1, 8:1)
 export type AspectRatio =
   | "1:1"
+  | "1:4"
+  | "1:8"
   | "2:3"
   | "3:2"
   | "3:4"
+  | "4:1"
   | "4:3"
   | "4:5"
   | "5:4"
+  | "8:1"
   | "9:16"
   | "16:9"
   | "21:9";

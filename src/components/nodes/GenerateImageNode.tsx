@@ -14,8 +14,11 @@ import { useToast } from "@/components/Toast";
 import { getImageDimensions, calculateNodeSizePreservingHeight } from "@/utils/nodeDimensions";
 import { ProviderBadge } from "./ProviderBadge";
 
-// All 10 aspect ratios supported by both models
-const ASPECT_RATIOS: AspectRatio[] = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
+// Base 10 aspect ratios (all Gemini image models)
+const BASE_ASPECT_RATIOS: AspectRatio[] = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
+
+// Extended 14 aspect ratios (Nano Banana 2 adds extreme ratios)
+const EXTENDED_ASPECT_RATIOS: AspectRatio[] = ["1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9"];
 
 // Resolutions for Nano Banana Pro and Nano Banana 2
 const RESOLUTIONS: Resolution[] = ["512", "1K", "2K", "4K"];
@@ -394,6 +397,7 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
   // Use selectedModel.modelId for Gemini models, fallback to legacy model field
   const currentModelId = isGeminiProvider ? (nodeData.selectedModel?.modelId || nodeData.model) : null;
   const supportsResolution = currentModelId === "nano-banana-pro" || currentModelId === "nano-banana-2";
+  const aspectRatios = currentModelId === "nano-banana-2" ? EXTENDED_ASPECT_RATIOS : BASE_ASPECT_RATIOS;
   const hasCarouselImages = (nodeData.imageHistory || []).length > 1;
 
   // Track previous status to detect error transitions
@@ -689,7 +693,7 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
               onChange={handleAspectRatioChange}
               className="flex-1 text-[10px] py-1 px-1.5 border border-neutral-700 rounded bg-neutral-900/50 focus:outline-none focus:ring-1 focus:ring-neutral-600 text-neutral-300"
             >
-              {ASPECT_RATIOS.map((ratio) => (
+              {aspectRatios.map((ratio) => (
                 <option key={ratio} value={ratio}>
                   {ratio}
                 </option>
