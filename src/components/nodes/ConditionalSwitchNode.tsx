@@ -402,7 +402,6 @@ export const ConditionalSwitchNode = memo(({ id, data, selected }: NodeProps<Wor
           style={{
             top: handleTops[rule.id] ?? (fallbackBase + index * handleSpacing),
             backgroundColor: "#3b82f6", // blue for text
-            opacity: rule.isMatched ? 1 : 0.3,
             width: 12,
             height: 12,
             border: "2px solid #1e1e1e",
@@ -419,7 +418,6 @@ export const ConditionalSwitchNode = memo(({ id, data, selected }: NodeProps<Wor
         style={{
           top: handleTops['default'] ?? (fallbackBase + ruleCount * handleSpacing),
           backgroundColor: "#3b82f6", // blue for text
-          opacity: defaultMatched ? 1 : 0.3,
           width: 12,
           height: 12,
           border: "2px solid #1e1e1e",
