@@ -196,8 +196,8 @@ export const SwitchNode = memo(({ id, data, selected }: NodeProps<WorkflowNode>)
                     checked={sw.enabled}
                     onChange={() => handleToggle(sw.id)}
                   />
-                  <div className="w-8 h-4 bg-neutral-600 peer-checked:bg-violet-500 rounded-full peer transition-colors relative">
-                    <div className="absolute top-0.5 left-0.5 bg-white h-3 w-3 rounded-full transition-transform peer-checked:translate-x-4" />
+                  <div className="w-8 h-4 bg-neutral-600 peer-checked:bg-violet-500 rounded-full transition-colors relative">
+                    <div className={`absolute top-0.5 left-0.5 bg-white h-3 w-3 rounded-full transition-transform ${sw.enabled ? "translate-x-4" : ""}`} />
                   </div>
                 </label>
 

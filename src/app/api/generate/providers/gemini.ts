@@ -249,6 +249,12 @@ export async function generateWithGeminiVideo(
     config,
   };
 
+  // Validate image-to-video models have an image
+  if (modelId.includes("image-to-video") && (!images || images.length === 0)) {
+    console.error(`[API:${requestId}] Image required for image-to-video model: ${modelId}`);
+    return { success: false, error: "Image required for image-to-video model" };
+  }
+
   // Add image for image-to-video models
   if (images && images.length > 0 && modelId.includes("image-to-video")) {
     const imageInput = images[0];
@@ -272,22 +278,30 @@ export async function generateWithGeminiVideo(
 
   // Start video generation (async operation)
   const startTime = Date.now();
-  let operation = await ai.models.generateVideos(requestArgs as unknown as Parameters<typeof ai.models.generateVideos>[0]);
 
-  // Poll for completion (10s intervals, 5min timeout)
-  const POLL_INTERVAL = 10_000;
-  const TIMEOUT = 5 * 60 * 1000;
+  let operation;
+  try {
+    operation = await ai.models.generateVideos(requestArgs as unknown as Parameters<typeof ai.models.generateVideos>[0]);
 
-  while (!operation.done) {
-    const elapsed = Date.now() - startTime;
-    if (elapsed > TIMEOUT) {
-      console.error(`[API:${requestId}] Veo generation timed out after ${(elapsed / 1000).toFixed(0)}s`);
-      return { success: false, error: "Video generation timed out after 5 minutes" };
+    // Poll for completion (10s intervals, 5min timeout)
+    const POLL_INTERVAL = 10_000;
+    const TIMEOUT = 5 * 60 * 1000;
+
+    while (!operation.done) {
+      const elapsed = Date.now() - startTime;
+      if (elapsed > TIMEOUT) {
+        console.error(`[API:${requestId}] Veo generation timed out after ${(elapsed / 1000).toFixed(0)}s`);
+        return { success: false, error: "Video generation timed out after 5 minutes" };
+      }
+
+      console.log(`[API:${requestId}] Veo polling... (${(elapsed / 1000).toFixed(0)}s elapsed)`);
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
+      operation = await ai.operations.getVideosOperation({ operation });
     }
-
-    console.log(`[API:${requestId}] Veo polling... (${(elapsed / 1000).toFixed(0)}s elapsed)`);
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
-    operation = await ai.operations.getVideosOperation({ operation });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`[API:${requestId}] Veo generation failed: ${msg}`);
+    return { success: false, error: `Video generation failed: ${msg}` };
   }
 
   const duration = Date.now() - startTime;
@@ -310,23 +324,32 @@ export async function generateWithGeminiVideo(
   const videoUrl = `${videoUri}&key=${apiKey}`;
   console.log(`[API:${requestId}] Fetching video from URI...`);
 
-  const videoResponse = await fetch(videoUrl);
-  if (!videoResponse.ok) {
-    console.error(`[API:${requestId}] Failed to fetch video: ${videoResponse.status}`);
-    return { success: false, error: `Failed to download generated video: ${videoResponse.status}` };
+  const controller = new AbortController();
+  const fetchTimeout = setTimeout(() => controller.abort(), 60_000);
+  try {
+    const videoResponse = await fetch(videoUrl, { signal: controller.signal });
+    if (!videoResponse.ok) {
+      console.error(`[API:${requestId}] Failed to fetch video: ${videoResponse.status}`);
+      return { success: false, error: `Failed to download generated video: ${videoResponse.status}` };
+    }
+
+    const videoBuffer = await videoResponse.arrayBuffer();
+    const videoSizeMB = (videoBuffer.byteLength / (1024 * 1024)).toFixed(2);
+    console.log(`[API:${requestId}] Video downloaded: ${videoSizeMB}MB`);
+
+    const base64Video = Buffer.from(videoBuffer).toString("base64");
+    const dataUrl = `data:video/mp4;base64,${base64Video}`;
+
+    console.log(`[API:${requestId}] SUCCESS - Returning ${videoSizeMB}MB video`);
+
+    return {
+      success: true,
+      outputs: [{ type: "video", data: dataUrl }],
+    };
+  } catch (error) {
+    console.error(`[API:${requestId}] Failed to download video: ${error}`);
+    return { success: false, error: "Failed to download generated video" };
+  } finally {
+    clearTimeout(fetchTimeout);
   }
-
-  const videoBuffer = await videoResponse.arrayBuffer();
-  const videoSizeMB = (videoBuffer.byteLength / (1024 * 1024)).toFixed(2);
-  console.log(`[API:${requestId}] Video downloaded: ${videoSizeMB}MB`);
-
-  const base64Video = Buffer.from(videoBuffer).toString("base64");
-  const dataUrl = `data:video/mp4;base64,${base64Video}`;
-
-  console.log(`[API:${requestId}] SUCCESS - Returning ${videoSizeMB}MB video`);
-
-  return {
-    success: true,
-    outputs: [{ type: "video", data: dataUrl }],
-  };
 }
