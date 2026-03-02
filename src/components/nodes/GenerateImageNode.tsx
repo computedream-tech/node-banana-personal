@@ -13,6 +13,7 @@ import { ModelSearchDialog } from "@/components/modals/ModelSearchDialog";
 import { useToast } from "@/components/Toast";
 import { getImageDimensions, calculateNodeSizePreservingHeight } from "@/utils/nodeDimensions";
 import { ProviderBadge } from "./ProviderBadge";
+import { getModelPageUrl, getProviderDisplayName } from "@/utils/providerUrls";
 
 // Base 10 aspect ratios (all Gemini image models)
 const BASE_ASPECT_RATIOS: AspectRatio[] = ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"];
@@ -389,21 +390,44 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
     <ProviderBadge provider={currentProvider} />
   ), [currentProvider]);
 
+  // Compute model page URL for external link
+  const modelPageUrl = useMemo(() => {
+    if (!nodeData.selectedModel?.modelId) return null;
+    return getModelPageUrl(currentProvider, nodeData.selectedModel.modelId);
+  }, [currentProvider, nodeData.selectedModel?.modelId]);
+
   // Header action element based on provider mode
   const headerAction = useMemo(() => {
+    const linkIcon = modelPageUrl && nodeData.selectedModel?.modelId ? (
+      <a
+        href={modelPageUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="nodrag nopan text-neutral-500 hover:text-neutral-300 transition-colors"
+        title={`View on ${getProviderDisplayName(currentProvider)}`}
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    ) : null;
+
     if (!isGeminiOnly) {
-      // External providers: browse button
       return (
-        <button
-          onClick={() => setIsBrowseDialogOpen(true)}
-          className="nodrag nopan text-[10px] py-0.5 px-1.5 bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 rounded text-neutral-300 transition-colors"
-        >
-          Browse
-        </button>
+        <>
+          {linkIcon}
+          <button
+            onClick={() => setIsBrowseDialogOpen(true)}
+            className="nodrag nopan text-[10px] py-0.5 px-1.5 bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 rounded text-neutral-300 transition-colors"
+          >
+            Browse
+          </button>
+        </>
       );
     }
-    return null;
-  }, [isGeminiOnly]);
+    return linkIcon;
+  }, [isGeminiOnly, modelPageUrl, nodeData.selectedModel?.modelId, currentProvider]);
   // Use selectedModel.modelId for Gemini models, fallback to legacy model field
   const currentModelId = isGeminiProvider ? (nodeData.selectedModel?.modelId || nodeData.model) : null;
   const supportsResolution = currentModelId === "nano-banana-pro" || currentModelId === "nano-banana-2";
