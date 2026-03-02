@@ -3,7 +3,6 @@
 import React, { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import { Handle, Position, NodeProps, Node, useReactFlow } from "@xyflow/react";
 import { BaseNode } from "./BaseNode";
-import { useCommentNavigation } from "@/hooks/useCommentNavigation";
 import { ModelParameters } from "./ModelParameters";
 import { useWorkflowStore, useProviderApiKeys } from "@/store/workflowStore";
 import { Generate3DNodeData, ProviderType, SelectedModel, ModelInputDef } from "@/types";
@@ -20,7 +19,6 @@ type Generate3DNodeType = Node<Generate3DNodeData, "generate3d">;
 
 export function Generate3DNode({ id, data, selected }: NodeProps<Generate3DNodeType>) {
   const nodeData = data;
-  const commentNavigation = useCommentNavigation(id);
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const { replicateApiKey, falApiKey, kieApiKey } = useProviderApiKeys();
   const [isBrowseDialogOpen, setIsBrowseDialogOpen] = useState(false);
@@ -88,43 +86,6 @@ export function Generate3DNode({ id, data, selected }: NodeProps<Generate3DNodeT
     return "Select 3D model...";
   }, [nodeData.selectedModel?.displayName, nodeData.selectedModel?.modelId]);
 
-  // Provider badge as title prefix
-  const titlePrefix = useMemo(() => (
-    <ProviderBadge provider={currentProvider} />
-  ), [currentProvider]);
-
-  // Compute model page URL for external link
-  const modelPageUrl = useMemo(() => {
-    if (!nodeData.selectedModel?.modelId) return null;
-    return getModelPageUrl(currentProvider, nodeData.selectedModel.modelId);
-  }, [currentProvider, nodeData.selectedModel?.modelId]);
-
-  // Header action element - external link + browse button
-  const headerAction = useMemo(() => (
-    <>
-      {modelPageUrl && nodeData.selectedModel?.modelId && (
-        <a
-          href={modelPageUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="nodrag nopan text-neutral-500 hover:text-neutral-300 transition-colors"
-          title={`View on ${getProviderDisplayName(currentProvider)}`}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-      )}
-      <button
-        onClick={() => setIsBrowseDialogOpen(true)}
-        className="nodrag nopan text-[10px] py-0.5 px-1.5 bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 rounded text-neutral-300 transition-colors"
-      >
-        Browse
-      </button>
-    </>
-  ), [modelPageUrl, nodeData.selectedModel?.modelId, currentProvider]);
-
   // Track previous status to detect error transitions
   const prevStatusRef = useRef(nodeData.status);
 
@@ -144,18 +105,9 @@ export function Generate3DNode({ id, data, selected }: NodeProps<Generate3DNodeT
     <>
     <BaseNode
       id={id}
-      title={displayTitle}
-      customTitle={nodeData.customTitle}
-      comment={nodeData.comment}
-      onCustomTitleChange={(title) => updateNodeData(id, { customTitle: title || undefined })}
-      onCommentChange={(comment) => updateNodeData(id, { comment: comment || undefined })}
-      onRun={handleRegenerate}
       selected={selected}
       isExecuting={isRunning}
       hasError={nodeData.status === "error"}
-      headerAction={headerAction}
-      titlePrefix={titlePrefix}
-      commentNavigation={commentNavigation ?? undefined}
     >
       {/* Dynamic input handles based on model schema */}
       {nodeData.inputSchema && nodeData.inputSchema.length > 0 ? (
