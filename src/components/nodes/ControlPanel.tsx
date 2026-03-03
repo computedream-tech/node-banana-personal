@@ -116,7 +116,7 @@ export function ControlPanel() {
   }
 
   return (
-    <div className="fixed top-0 right-6 h-screen z-[50] flex items-center pointer-events-none">
+    <div className="fixed top-0 right-6 h-screen z-[90] flex items-center pointer-events-none">
       <div
         className="w-80 bg-neutral-800 border border-neutral-700 rounded-xl max-h-[80vh] overflow-y-auto pointer-events-auto transition-opacity duration-200 nowheel"
         style={{
