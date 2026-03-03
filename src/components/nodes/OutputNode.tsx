@@ -112,7 +112,7 @@ export function OutputNode({ id, data, selected }: NodeProps<OutputNodeType>) {
         id={id}
         selected={selected}
         isExecuting={isRunning}
-        contentClassName="flex-1 min-h-0 overflow-clip rounded-lg relative"
+        contentClassName="flex-1 min-h-0 relative"
         className="min-w-[200px]"
       >
         <Handle
@@ -130,6 +130,7 @@ export function OutputNode({ id, data, selected }: NodeProps<OutputNodeType>) {
           style={{ top: "60%", background: "rgb(167, 139, 250)", zIndex: 10 }}
         />
 
+        <div className="relative w-full h-full overflow-hidden rounded-lg">
         {contentSrc ? (
           <>
             {isAudio ? (
@@ -188,6 +189,7 @@ export function OutputNode({ id, data, selected }: NodeProps<OutputNodeType>) {
             <span className="text-xs text-neutral-500 mt-2">Connect input</span>
           </div>
         )}
+        </div>
       </BaseNode>
 
       {/* Lightbox Modal (skip for audio) */}
