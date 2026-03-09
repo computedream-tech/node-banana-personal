@@ -467,36 +467,42 @@ export function ProjectSetupModal({
             </div>
 
             <div className="pt-2 border-t border-neutral-700">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={!externalStorage}
-                  onChange={(e) => setExternalStorage(!e.target.checked)}
-                  className="w-4 h-4 rounded border-neutral-600 bg-neutral-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-neutral-800"
-                />
+              <label className="flex items-center justify-between gap-3 cursor-pointer">
                 <div>
                   <span className="text-sm text-neutral-200">Embed images as base64</span>
                   <p className="text-xs text-neutral-500">
                     Embeds all images in workflow, larger workflow files. Can hit memory limits on very large workflows.
                   </p>
                 </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!externalStorage}
+                  onClick={() => setExternalStorage(externalStorage ? false : true)}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${!externalStorage ? "bg-blue-500" : "bg-neutral-600"}`}
+                >
+                  <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${!externalStorage ? "translate-x-[18px]" : "translate-x-[3px]"}`} />
+                </button>
               </label>
             </div>
 
             <div className="pt-2 border-t border-neutral-700">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={inlineParametersEnabled}
-                  onChange={(e) => setInlineParameters(e.target.checked)}
-                  className="w-4 h-4 rounded border-neutral-600 bg-neutral-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-neutral-800"
-                />
+              <label className="flex items-center justify-between gap-3 cursor-pointer">
                 <div>
-                  <span className="text-sm text-neutral-200">Inline Parameters</span>
+                  <span className="text-sm text-neutral-200">Show model settings on nodes</span>
                   <p className="text-xs text-neutral-500">
                     Show model parameters inside generation nodes instead of the side panel
                   </p>
                 </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={inlineParametersEnabled}
+                  onClick={() => setInlineParameters(!inlineParametersEnabled)}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${inlineParametersEnabled ? "bg-blue-500" : "bg-neutral-600"}`}
+                >
+                  <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${inlineParametersEnabled ? "translate-x-[18px]" : "translate-x-[3px]"}`} />
+                </button>
               </label>
             </div>
 
