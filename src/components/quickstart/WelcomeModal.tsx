@@ -107,16 +107,15 @@ export function WelcomeModal({
             onWorkflowGenerated={handleWorkflowSelected}
           />
         )}
+        {/* Hidden file input for loading workflows */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept=".json"
+          className="hidden"
+        />
       </div>
-
-      {/* Hidden file input for loading workflows */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept=".json"
-        className="hidden"
-      />
     </div>
   );
 }
