@@ -379,7 +379,7 @@ function GenerateImageControls({ node }: { node: Node }) {
   const supportsResolution = currentModelId === "nano-banana-pro" || currentModelId === "nano-banana-2";
   const aspectRatios = currentModelId === "nano-banana-2" ? EXTENDED_ASPECT_RATIOS : BASE_ASPECT_RATIOS;
   const resolutions = currentModelId === "nano-banana-2" ? RESOLUTIONS_NB2 : RESOLUTIONS_PRO;
-  const hasExternalProviders = !!(replicateEnabled && replicateApiKey) || true;
+  const hasExternalProviders = !!(replicateEnabled && replicateApiKey);
 
   return (
     <>
