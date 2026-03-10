@@ -189,7 +189,7 @@ export function BaseNode({
         minWidth={minWidth}
         minHeight={minHeight}
         lineClassName="!border-transparent"
-        handleClassName="!w-3 !h-3 !bg-transparent !border-none"
+        handleClassName="!w-5 !h-5 !bg-transparent !border-none"
         onResize={handleResize}
       />
       <div
