@@ -382,7 +382,7 @@ let nodeIdCounter = 0;
 let groupIdCounter = 0;
 let autoSaveIntervalId: ReturnType<typeof setInterval> | null = null;
 
-// RAF debounce for hover updates — coalesces rapid mouseenter/mouseleave events
+// RAF debounce for hover updates - coalesces rapid mouseenter/mouseleave events
 // into a single store update per animation frame
 let hoverRafId: number | null = null;
 
@@ -1031,7 +1031,7 @@ const workflowStoreImpl: StateCreator<WorkflowStore> = (set, get) => ({
       // Check if node is dimmed (downstream of disabled Switch output)
       const dimmedNodeIds = get().dimmedNodeIds;
       if (dimmedNodeIds.has(node.id)) {
-        // Skip execution — node is dimmed
+        // Skip execution - node is dimmed
         // Keep previous output visible (don't clear node data)
         logger.info('node.execution', 'Node skipped (downstream of disabled Switch)', {
           nodeId: node.id,
@@ -1053,7 +1053,7 @@ const workflowStoreImpl: StateCreator<WorkflowStore> = (set, get) => ({
           set({ pausedAtNodeId: node.id });
           useToast.getState().show("Workflow paused - click Run to continue", "warning");
 
-          // Signal to stop the entire workflow — outer loop handles isRunning/session cleanup
+          // Signal to stop the entire workflow - outer loop handles isRunning/session cleanup
           abortController.abort();
           return;
         }
@@ -2313,9 +2313,14 @@ export function useProviderApiKeys() {
       falApiKey: state.providerSettings.providers.fal?.apiKey ?? null,
       kieApiKey: state.providerSettings.providers.kie?.apiKey ?? null,
       wavespeedApiKey: state.providerSettings.providers.wavespeed?.apiKey ?? null,
+      poyoApiKey: state.providerSettings.providers.poyo?.apiKey ?? null,
+      muapiApiKey: state.providerSettings.providers.muapi?.apiKey ?? null,
       // Provider enabled states (for conditional UI)
       replicateEnabled: state.providerSettings.providers.replicate?.enabled ?? false,
       kieEnabled: state.providerSettings.providers.kie?.enabled ?? false,
+      poyoEnabled: state.providerSettings.providers.poyo?.enabled ?? false,
+      muapiEnabled: state.providerSettings.providers.muapi?.enabled ?? false,
     }))
   );
 }
+

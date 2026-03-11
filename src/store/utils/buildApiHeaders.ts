@@ -16,6 +16,8 @@ const PROVIDER_HEADER_MAP: Record<ProviderType, string> = {
   fal: "X-Fal-API-Key",
   kie: "X-Kie-Key",
   wavespeed: "X-WaveSpeed-Key",
+  poyo: "X-Poyo-Key",
+  muapi: "X-MuAPI-Key",
   openai: "X-OpenAI-API-Key",
   anthropic: "X-Anthropic-API-Key",
 };
@@ -75,3 +77,4 @@ export function buildLlmHeaders(
 
   return headers;
 }
+

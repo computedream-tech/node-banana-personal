@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "id": "wf_1773163260583_9bthqj0di",
+  "name": "Array test",
+  "nodes": [
+    {
+      "id": "prompt-1",
+      "type": "prompt",
+      "position": {
+        "x": -175.827542191995,
+        "y": 476.09054525098986
+      },
+      "data": {
+        "prompt": "cat\ndog\npaper\nhouse\nhot-dog"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": true,
+      "className": "",
+      "dragging": false
+    },
+    {
+      "id": "array-2",
+      "type": "array",
+      "position": {
+        "x": 645.8053130976573,
+        "y": 305.0965013476543
+      },
+      "data": {
+        "inputText": "cat\ndog\npaper\nhouse\nhot-dog",
+        "splitMode": "newline",
+        "delimiter": "*",
+        "regexPattern": "",
+        "trimItems": true,
+        "removeEmpty": true,
+        "selectedOutputIndex": 0,
+        "outputItems": [
+          "cat",
+          "dog",
+          "paper",
+          "house",
+          "hot-dog"
+        ],
+        "outputText": "[\"cat\",\"dog\",\"paper\",\"house\",\"hot-dog\"]",
+        "error": null
+      },
+      "style": {
+        "width": 360,
+        "height": 420
+      },
+      "measured": {
+        "width": 360,
+        "height": 420
+      },
+      "selected": false,
+      "className": "",
+      "dragging": false
+    },
+    {
+      "id": "prompt-11",
+      "type": "prompt",
+      "position": {
+        "x": 1243.6799059902223,
+        "y": 293.7217604160219
+      },
+      "data": {
+        "prompt": "cat"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false
+    },
+    {
+      "id": "prompt-12",
+      "type": "prompt",
+      "position": {
+        "x": 1243.6799059902223,
+        "y": 537.7217604160219
+      },
+      "data": {
+        "prompt": "dog"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false
+    },
+    {
+      "id": "prompt-13",
+      "type": "prompt",
+      "position": {
+        "x": 1243.6799059902223,
+        "y": 781.7217604160219
+      },
+      "data": {
+        "prompt": "paper"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false
+    },
+    {
+      "id": "prompt-14",
+      "type": "prompt",
+      "position": {
+        "x": 1243.6799059902223,
+        "y": 1025.7217604160219
+      },
+      "data": {
+        "prompt": "house"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false
+    },
+    {
+      "id": "prompt-15",
+      "type": "prompt",
+      "position": {
+        "x": 1243.6799059902223,
+        "y": 1269.7217604160219
+      },
+      "data": {
+        "prompt": "hot-dog"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "prompt-1",
+      "sourceHandle": "text",
+      "target": "array-2",
+      "targetHandle": "text",
+      "id": "edge-prompt-1-array-2-text-text",
+      "data": {
+        "createdAt": 1773167029367
+      },
+      "selected": false
+    },
+    {
+      "source": "array-2",
+      "sourceHandle": "text",
+      "target": "prompt-11",
+      "targetHandle": "text",
+      "id": "edge-array-2-prompt-11-text-text",
+      "data": {
+        "createdAt": 1773167425351,
+        "arrayItemIndex": 0
+      },
+      "selected": false
+    },
+    {
+      "source": "array-2",
+      "sourceHandle": "text",
+      "target": "prompt-12",
+      "targetHandle": "text",
+      "id": "edge-array-2-prompt-12-text-text",
+      "data": {
+        "createdAt": 1773167425351,
+        "arrayItemIndex": 1
+      },
+      "selected": false
+    },
+    {
+      "source": "array-2",
+      "sourceHandle": "text",
+      "target": "prompt-13",
+      "targetHandle": "text",
+      "id": "edge-array-2-prompt-13-text-text",
+      "data": {
+        "createdAt": 1773167425352,
+        "arrayItemIndex": 2
+      },
+      "selected": false
+    },
+    {
+      "source": "array-2",
+      "sourceHandle": "text",
+      "target": "prompt-14",
+      "targetHandle": "text",
+      "id": "edge-array-2-prompt-14-text-text",
+      "data": {
+        "createdAt": 1773167425352,
+        "arrayItemIndex": 3
+      },
+      "selected": false
+    },
+    {
+      "source": "array-2",
+      "sourceHandle": "text",
+      "target": "prompt-15",
+      "targetHandle": "text",
+      "id": "edge-array-2-prompt-15-text-text",
+      "data": {
+        "createdAt": 1773167425352,
+        "arrayItemIndex": 4
+      },
+      "selected": false
+    }
+  ],
+  "edgeStyle": "curved"
+}

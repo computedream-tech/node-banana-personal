@@ -47,7 +47,7 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
   const nodeData = data;
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   // Use stable selector for API keys to prevent unnecessary re-fetches
-  const { geminiApiKey, replicateApiKey, falApiKey, kieApiKey, replicateEnabled, kieEnabled } = useProviderApiKeys();
+  const { geminiApiKey, replicateApiKey, falApiKey, kieApiKey, poyoApiKey, muapiApiKey, replicateEnabled, kieEnabled, poyoEnabled, muapiEnabled } = useProviderApiKeys();
   const generationsPath = useWorkflowStore((state) => state.generationsPath);
   const [externalModels, setExternalModels] = useState<ProviderModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
@@ -85,8 +85,14 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
     if (kieEnabled && kieApiKey) {
       providers.push({ id: "kie", name: "Kie.ai" });
     }
+    if (poyoEnabled && poyoApiKey) {
+      providers.push({ id: "poyo", name: "Poyo.ai" });
+    }
+    if (muapiEnabled && muapiApiKey) {
+      providers.push({ id: "muapi", name: "MuAPI" });
+    }
     return providers;
-  }, [geminiApiKey, replicateEnabled, replicateApiKey, kieEnabled, kieApiKey]);
+  }, [geminiApiKey, replicateEnabled, replicateApiKey, kieEnabled, kieApiKey, poyoEnabled, poyoApiKey, muapiEnabled, muapiApiKey]);
 
   // Fetch models from external providers when provider changes
   const fetchModels = useCallback(async () => {
@@ -106,6 +112,12 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
       }
       if (kieApiKey) {
         headers["X-Kie-Key"] = kieApiKey;
+      }
+      if (poyoApiKey) {
+        headers["X-Poyo-Key"] = poyoApiKey;
+      }
+      if (muapiApiKey) {
+        headers["X-MuAPI-Key"] = muapiApiKey;
       }
       const response = await deduplicatedFetch(`/api/models?provider=${currentProvider}&capabilities=${capabilities}`, { headers });
       if (response.ok) {
@@ -129,7 +141,7 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
     } finally {
       setIsLoadingModels(false);
     }
-  }, [currentProvider, geminiApiKey, replicateApiKey, falApiKey, kieApiKey]);
+  }, [currentProvider, geminiApiKey, replicateApiKey, falApiKey, kieApiKey, poyoApiKey, muapiApiKey]);
 
   useEffect(() => {
     fetchModels();
@@ -774,7 +786,7 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
 
     </BaseNode>
 
-    {/* Hidden ModelParameters — only for schema-loading side effect (dynamic handles) when inline disabled */}
+    {/* Hidden ModelParameters - only for schema-loading side effect (dynamic handles) when inline disabled */}
     {!inlineParametersEnabled && nodeData.selectedModel?.modelId && !isVeoModel(nodeData.selectedModel.modelId) && (
       <div className="hidden">
         <ModelParameters
@@ -800,3 +812,4 @@ export function GenerateVideoNode({ id, data, selected }: NodeProps<GenerateVide
     </>
   );
 }
+

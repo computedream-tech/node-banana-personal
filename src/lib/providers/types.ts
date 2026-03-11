@@ -28,6 +28,11 @@ export interface ModelParameter {
   type: "string" | "number" | "integer" | "boolean" | "array";
   description?: string;
   default?: unknown;
+  label?: string;
+  placeholder?: string;
+  helperText?: string;
+  validationType?: "aspect-ratio";
+  validationMessage?: string;
   minimum?: number;
   maximum?: number;
   enum?: unknown[];
@@ -77,6 +82,8 @@ export interface ProviderModel {
   };
   /** Optional URL to the model's page on the provider's website */
   pageUrl?: string;
+  /** Optional vendor/source label shown in the model browser */
+  vendor?: string;
 }
 
 /**
@@ -167,3 +174,4 @@ export interface ProviderInterface {
    */
   getApiKey(): string | null;
 }
+

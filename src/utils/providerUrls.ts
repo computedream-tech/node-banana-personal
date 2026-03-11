@@ -21,6 +21,10 @@ export function getModelPageUrl(
       return `https://docs.kie.ai/`;
     case "wavespeed":
       return `https://wavespeed.ai`;
+    case "poyo":
+      return "https://docs.poyo.ai/api-manual/overview";
+    case "muapi":
+      return "https://muapi.ai/models";
     default:
       return null;
   }
@@ -41,7 +45,12 @@ export function getProviderDisplayName(provider: ProviderType): string {
       return "Kie.ai";
     case "wavespeed":
       return "WaveSpeed";
+    case "poyo":
+      return "Poyo.ai";
+    case "muapi":
+      return "MuAPI";
     default:
       return provider;
   }
 }
+

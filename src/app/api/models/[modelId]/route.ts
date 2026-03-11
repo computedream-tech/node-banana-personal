@@ -30,6 +30,8 @@ import {
   setCachedWaveSpeedSchema,
   WaveSpeedApiSchema,
 } from "@/lib/providers/cache";
+import { getMuapiSchema } from "@/lib/providers/muapiCatalog";
+import { getPoyoSchema } from "@/lib/providers/poyoCatalog";
 
 // Cache for model schemas (10 minute TTL)
 const schemaCache = new Map<string, { parameters: ModelParameter[]; inputs: ModelInput[]; timestamp: number }>();
@@ -219,22 +221,22 @@ function resolveRef(
 /**
  * Resolve the effective type and format from an OpenAPI property.
  *
- * Handles wrapper patterns used by code generators (e.g. Pydantic → OpenAPI):
+ * Handles wrapper patterns used by code generators (e.g. Pydantic -> OpenAPI):
  *   - anyOf / oneOf: picks the first non-null type (nullable pattern)
  *   - allOf: merges referenced schemas
  *   - $ref: resolves from schemaComponents
- *   - Direct type: returns immediately (fast path — no behavior change)
+ *   - Direct type: returns immediately (fast path - no behavior change)
  */
 function resolvePropertyType(
   prop: Record<string, unknown>,
   schemaComponents?: Record<string, unknown>
 ): { type?: string; format?: string } {
-  // Fast path: direct type is defined — existing behaviour, no change
+  // Fast path: direct type is defined - existing behaviour, no change
   if (prop.type !== undefined) {
     return { type: prop.type as string, format: prop.format as string | undefined };
   }
 
-  // anyOf / oneOf — pick the first non-null variant
+  // anyOf / oneOf - pick the first non-null variant
   const variants = (prop.anyOf ?? prop.oneOf) as Array<Record<string, unknown>> | undefined;
   if (variants && Array.isArray(variants)) {
     for (const variant of variants) {
@@ -251,7 +253,7 @@ function resolvePropertyType(
     }
   }
 
-  // allOf — merge referenced schemas
+  // allOf - merge referenced schemas
   const allOf = prop.allOf as Array<Record<string, unknown>> | undefined;
   if (allOf && Array.isArray(allOf) && schemaComponents) {
     for (const item of allOf) {
@@ -1170,7 +1172,7 @@ export async function GET(
   const decodedModelId = decodeURIComponent(modelId);
   const provider = request.nextUrl.searchParams.get("provider") as ProviderType | null;
 
-  if (!provider || (provider !== "replicate" && provider !== "fal" && provider !== "kie" && provider !== "wavespeed" && provider !== "gemini")) {
+  if (!provider || (provider !== "replicate" && provider !== "fal" && provider !== "kie" && provider !== "wavespeed" && provider !== "gemini" && provider !== "poyo" && provider !== "muapi")) {
     return NextResponse.json<SchemaErrorResponse>(
       {
         success: false,
@@ -1220,6 +1222,10 @@ export async function GET(
     } else if (provider === "kie") {
       // Kie.ai uses hardcoded schemas (no schema discovery API)
       result = getKieSchema(decodedModelId);
+    } else if (provider === "poyo") {
+      result = getPoyoSchema(decodedModelId);
+    } else if (provider === "muapi") {
+      result = getMuapiSchema(decodedModelId);
     } else if (provider === "wavespeed") {
       // WaveSpeed uses dynamic schemas from API, with static fallback
       const apiKey = request.headers.get("X-WaveSpeed-Key") || process.env.WAVESPEED_API_KEY || null;
@@ -1260,3 +1266,6 @@ export async function GET(
     );
   }
 }
+
+
+

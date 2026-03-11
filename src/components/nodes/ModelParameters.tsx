@@ -9,6 +9,9 @@ import { deduplicatedFetch } from "@/utils/deduplicatedFetch";
 // localStorage cache for model schemas (persists across dev server restarts)
 const SCHEMA_CACHE_KEY = "node-banana-schema-cache";
 const SCHEMA_CACHE_TTL = 48 * 60 * 60 * 1000; // 48 hours
+const SCHEMA_CACHE_VERSION_BY_PROVIDER: Partial<Record<ProviderType, string>> = {
+  poyo: "v6",
+};
 
 interface SchemaCacheEntry {
   parameters: ModelParameter[];
@@ -19,7 +22,8 @@ interface SchemaCacheEntry {
 function getCachedSchema(modelId: string, provider: string): SchemaCacheEntry | null {
   try {
     const cache = JSON.parse(localStorage.getItem(SCHEMA_CACHE_KEY) || "{}");
-    const key = `${provider}:${modelId}`;
+    const version = SCHEMA_CACHE_VERSION_BY_PROVIDER[provider as ProviderType] || "v1";
+    const key = `${version}:${provider}:${modelId}`;
     const entry = cache[key];
     if (entry && Date.now() - entry.timestamp < SCHEMA_CACHE_TTL) {
       return entry;
@@ -33,7 +37,8 @@ function getCachedSchema(modelId: string, provider: string): SchemaCacheEntry | 
 function setCachedSchema(modelId: string, provider: string, parameters: ModelParameter[], inputs: ModelInputDef[]) {
   try {
     const cache = JSON.parse(localStorage.getItem(SCHEMA_CACHE_KEY) || "{}");
-    cache[`${provider}:${modelId}`] = { parameters, inputs, timestamp: Date.now() };
+    const version = SCHEMA_CACHE_VERSION_BY_PROVIDER[provider as ProviderType] || "v1";
+    cache[`${version}:${provider}:${modelId}`] = { parameters, inputs, timestamp: Date.now() };
     localStorage.setItem(SCHEMA_CACHE_KEY, JSON.stringify(cache));
   } catch {
     // Ignore cache errors
@@ -41,7 +46,7 @@ function setCachedSchema(modelId: string, provider: string, parameters: ModelPar
 }
 
 /** Reorder items so they read column-first in a row-based CSS grid.
- *  e.g. [1,2,3,4,5,6,7,8] with 2 cols → [1,5,2,6,3,7,4,8] */
+ *  e.g. [1,2,3,4,5,6,7,8] with 2 cols -> [1,5,2,6,3,7,4,8] */
 function reorderColumnFirst<T>(items: T[], cols: number): T[] {
   const rows = Math.ceil(items.length / cols);
   const result: T[] = [];
@@ -52,6 +57,38 @@ function reorderColumnFirst<T>(items: T[], cols: number): T[] {
     }
   }
   return result;
+}
+function validateAspectRatio(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const match = trimmed.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!match) {
+    return "Use WIDTH:HEIGHT like 16:9 or 9:16.";
+  }
+
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return "Use WIDTH:HEIGHT like 16:9 or 9:16.";
+  }
+
+  const ratio = width / height;
+  if (ratio < 0.25 || ratio > 4) {
+    return "Use a normal image ratio like 16:9, 9:16, or 1:1.";
+  }
+
+  return null;
+}
+
+function validateStringParameter(param: ModelParameter, value: string): string | null {
+  if (param.validationType === "aspect-ratio") {
+    return validateAspectRatio(value);
+  }
+
+  return null;
 }
 
 interface ModelParametersProps {
@@ -80,7 +117,7 @@ function ModelParametersInner({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Use stable selector for API keys to prevent unnecessary re-fetches
-  const { replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey } = useProviderApiKeys();
+  const { replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey, poyoApiKey, muapiApiKey } = useProviderApiKeys();
 
   // Fetch schema when modelId changes
   useEffect(() => {
@@ -116,6 +153,12 @@ function ModelParametersInner({
         if (wavespeedApiKey) {
           headers["X-WaveSpeed-Key"] = wavespeedApiKey;
         }
+        if (poyoApiKey) {
+          headers["X-Poyo-Key"] = poyoApiKey;
+        }
+        if (muapiApiKey) {
+          headers["X-MuAPI-Key"] = muapiApiKey;
+        }
 
         const encodedModelId = encodeURIComponent(modelId);
         const response = await deduplicatedFetch(
@@ -150,7 +193,7 @@ function ModelParametersInner({
     };
 
     fetchSchema();
-  }, [modelId, provider, replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey, onInputsLoaded]);
+  }, [modelId, provider, replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey, poyoApiKey, muapiApiKey, onInputsLoaded]);
 
   // Notify parent to resize node when schema loads
   useEffect(() => {
@@ -275,7 +318,7 @@ function ParameterInputInner({ param, name, value, onChange }: ParameterInputPro
   const handleChange = useCallback((value: unknown) => {
     onChange(name, value);
   }, [name, onChange]);
-  const displayName = param.name
+  const displayName = param.label ?? param.name
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
@@ -292,6 +335,30 @@ function ParameterInputInner({ param, name, value, onChange }: ParameterInputPro
       setLocalValue(value === undefined || value === null ? "" : String(value));
     }
   }, [value]);
+
+  useEffect(() => {
+    if (
+      param.type === "string" &&
+      param.validationType === "aspect-ratio" &&
+      typeof value === "string" &&
+      value.trim() !== "" &&
+      validateStringParameter(param, value) !== null
+    ) {
+      onChange(name, undefined);
+    }
+  }, [name, onChange, param, value]);
+
+  useEffect(() => {
+    if (
+      param.enum &&
+      param.enum.length > 0 &&
+      value !== undefined &&
+      value !== null &&
+      !param.enum.some((option) => String(option) === String(value))
+    ) {
+      onChange(name, undefined);
+    }
+  }, [name, onChange, param, value]);
 
   // Determine input type and render accordingly
   if (param.enum && param.enum.length > 0) {
@@ -424,29 +491,45 @@ function ParameterInputInner({ param, name, value, onChange }: ParameterInputPro
     return null;
   }
 
-  // Default: string input — uses local state, syncs to store on blur
+  const stringPlaceholder = param.placeholder ?? (param.default !== undefined ? `${param.default}` : undefined);
+  const stringValidationError = validateStringParameter(param, localValue);
+
+  // Default: string input - uses local state, syncs to store on blur
   return (
-    <div className="flex items-center gap-2">
-      <label
-        className="text-[11px] text-neutral-400 shrink-0"
-        title={param.description || undefined}
-      >
-        {displayName}
-      </label>
-      <input
-        type="text"
-        value={localValue}
-        onFocus={() => { isFocusedRef.current = true; }}
-        onChange={(e) => {
-          setLocalValue(e.target.value);
-        }}
-        onBlur={() => {
-          isFocusedRef.current = false;
-          handleChange(localValue || undefined);
-        }}
-        placeholder={param.default !== undefined ? `${param.default}` : undefined}
-        className="nodrag nopan flex-1 min-w-0 text-[11px] py-1 px-2 rounded-md bg-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-neutral-600 text-white placeholder:text-neutral-500"
-      />
+    <div className="flex flex-col gap-0.5">
+      <div className="flex items-center gap-2">
+        <label
+          className="text-[11px] text-neutral-400 shrink-0"
+          title={param.description || undefined}
+        >
+          {displayName}
+        </label>
+        <input
+          type="text"
+          value={localValue}
+          onFocus={() => { isFocusedRef.current = true; }}
+          onChange={(e) => {
+            setLocalValue(e.target.value);
+          }}
+          onBlur={() => {
+            isFocusedRef.current = false;
+            if (stringValidationError) {
+              handleChange(undefined);
+            } else {
+              handleChange(localValue || undefined);
+            }
+          }}
+          placeholder={stringPlaceholder}
+          className={`nodrag nopan flex-1 min-w-0 text-[11px] py-1 px-2 rounded-md bg-[#1a1a1a] focus:outline-none focus:ring-1 text-white placeholder:text-neutral-500 ${
+            stringValidationError ? "ring-1 ring-amber-500 focus:ring-amber-500" : "focus:ring-neutral-600"
+          }`}
+        />
+      </div>
+      {stringValidationError ? (
+        <span className="text-[9px] text-amber-400">{param.validationMessage ?? stringValidationError}</span>
+      ) : param.helperText ? (
+        <span className="text-[9px] text-neutral-500">{param.helperText}</span>
+      ) : null}
     </div>
   );
 }
@@ -454,3 +537,5 @@ function ParameterInputInner({ param, name, value, onChange }: ParameterInputPro
 // Memoized exports to prevent unnecessary re-renders
 export const ModelParameters = React.memo(ModelParametersInner);
 const ParameterInput = React.memo(ParameterInputInner);
+
+

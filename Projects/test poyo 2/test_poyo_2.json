@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "id": "wf_1773267604847_ae2haxxtv",
+  "name": "test poyo 2",
+  "nodes": [
+    {
+      "id": "nanoBanana-1",
+      "type": "nanoBanana",
+      "position": {
+        "x": 1397.4391903579292,
+        "y": 97.6766323054843
+      },
+      "data": {
+        "inputImages": [],
+        "inputPrompt": null,
+        "outputImage": null,
+        "aspectRatio": "1:1",
+        "resolution": "1K",
+        "model": "nano-banana-pro",
+        "selectedModel": {
+          "provider": "poyo",
+          "modelId": "nano-banana-edit",
+          "displayName": "Nano Banana Edit",
+          "capabilities": [
+            "image-to-image"
+          ]
+        },
+        "useGoogleSearch": false,
+        "useImageSearch": false,
+        "status": "idle",
+        "error": null,
+        "imageHistory": [],
+        "selectedHistoryIndex": 0,
+        "inputSchema": [
+          {
+            "name": "prompt",
+            "type": "text",
+            "required": false,
+            "label": "Prompt"
+          },
+          {
+            "name": "image_urls",
+            "type": "image",
+            "required": true,
+            "label": "Image",
+            "isArray": true
+          }
+        ],
+        "parametersExpanded": true,
+        "parameters": {}
+      },
+      "style": {
+        "width": 300,
+        "height": 367.5
+      },
+      "measured": {
+        "width": 300,
+        "height": 368
+      },
+      "className": "",
+      "width": 300,
+      "height": 367.5,
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "nanoBanana-2",
+      "type": "nanoBanana",
+      "position": {
+        "x": 1007.9652233482678,
+        "y": 104.42853992605967
+      },
+      "data": {
+        "inputImages": [],
+        "inputPrompt": null,
+        "outputImage": null,
+        "aspectRatio": "1:1",
+        "resolution": "1K",
+        "model": "nano-banana-pro",
+        "selectedModel": {
+          "provider": "poyo",
+          "modelId": "nano-banana-2-new",
+          "displayName": "Nano Banana 2 New",
+          "capabilities": [
+            "text-to-image",
+            "image-to-image"
+          ]
+        },
+        "useGoogleSearch": false,
+        "useImageSearch": false,
+        "status": "idle",
+        "error": null,
+        "imageHistory": [],
+        "selectedHistoryIndex": 0,
+        "inputSchema": [
+          {
+            "name": "prompt",
+            "type": "text",
+            "required": true,
+            "label": "Prompt"
+          },
+          {
+            "name": "image_urls",
+            "type": "image",
+            "required": false,
+            "label": "Image",
+            "isArray": true
+          }
+        ],
+        "parameters": {
+          "resolution": "4K"
+        }
+      },
+      "style": {
+        "width": 300,
+        "height": 398.5
+      },
+      "measured": {
+        "width": 300,
+        "height": 399
+      },
+      "className": "",
+      "width": 300,
+      "height": 398.5,
+      "selected": false,
+      "dragging": false
+    }
+  ],
+  "edges": [],
+  "edgeStyle": "curved"
+}

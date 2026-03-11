@@ -23,6 +23,8 @@ function ProviderIcon({ provider }: { provider: ProviderType }) {
     anthropic: { bg: "bg-amber-500/20", text: "text-amber-300" },
     kie: { bg: "bg-orange-500/20", text: "text-orange-300" },
     wavespeed: { bg: "bg-purple-500/20", text: "text-purple-300" },
+    poyo: { bg: "bg-rose-500/20", text: "text-rose-300" },
+    muapi: { bg: "bg-sky-500/20", text: "text-sky-300" },
   };
 
   const labels: Record<ProviderType, string> = {
@@ -33,6 +35,8 @@ function ProviderIcon({ provider }: { provider: ProviderType }) {
     anthropic: "A",
     kie: "K",
     wavespeed: "W",
+    poyo: "P",
+    muapi: "M",
   };
 
   const color = colors[provider] || colors.gemini;
@@ -56,6 +60,8 @@ function getProviderDisplayName(provider: ProviderType): string {
     anthropic: "Anthropic",
     kie: "Kie.ai",
     wavespeed: "WaveSpeed",
+    poyo: "Poyo.ai",
+    muapi: "MuAPI",
   };
   return names[provider] || provider;
 }
@@ -76,6 +82,12 @@ function getModelUrl(provider: ProviderType, modelId: string): string | null {
   if (provider === "wavespeed") {
     // modelId format: "wavespeed-ai/model-name"
     return `https://wavespeed.ai`;
+  }
+  if (provider === "poyo") {
+    return `https://docs.poyo.ai/api-manual/overview`;
+  }
+  if (provider === "muapi") {
+    return `https://muapi.ai/models`;
   }
   return null;
 }
@@ -169,7 +181,7 @@ export function CostDialog({ predictedCost, incurredCost, onClose }: CostDialogP
                       {item.count}x {item.modelName}
                     </span>
                     <span className="text-neutral-400">
-                      {item.subtotal !== null ? formatCost(item.subtotal) : "—"}
+                      {item.subtotal !== null ? formatCost(item.subtotal) : "-"}
                     </span>
                   </div>
                 ))}
@@ -267,3 +279,4 @@ export function CostDialog({ predictedCost, incurredCost, onClose }: CostDialogP
     </div>
   );
 }
+

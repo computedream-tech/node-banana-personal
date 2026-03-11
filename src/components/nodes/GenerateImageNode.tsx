@@ -18,7 +18,7 @@ import { browseRegistry } from "@/utils/browseRegistry";
 import { useAdaptiveImageSrc } from "@/hooks/useAdaptiveImageSrc";
 
 /** Reorder items so they read column-first in a row-based CSS grid.
- *  e.g. [1,2,3,4,5,6,7,8] with 2 cols → [1,5,2,6,3,7,4,8] */
+ *  e.g. [1,2,3,4,5,6,7,8] with 2 cols -> [1,5,2,6,3,7,4,8] */
 function reorderColumnFirst<T>(items: T[], cols: number): T[] {
   const rows = Math.ceil(items.length / cols);
   const result: T[] = [];
@@ -59,7 +59,7 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const generationsPath = useWorkflowStore((state) => state.generationsPath);
   // Use stable selector for API keys to prevent unnecessary re-fetches
-  const { replicateApiKey, falApiKey, kieApiKey, replicateEnabled, kieEnabled } = useProviderApiKeys();
+  const { replicateApiKey, falApiKey, kieApiKey, poyoApiKey, muapiApiKey, replicateEnabled, kieEnabled, poyoEnabled, muapiEnabled } = useProviderApiKeys();
   const [isLoadingCarouselImage, setIsLoadingCarouselImage] = useState(false);
   const [externalModels, setExternalModels] = useState<ProviderModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
@@ -93,8 +93,14 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
     if (kieEnabled && kieApiKey) {
       providers.push({ id: "kie", name: "Kie.ai" });
     }
+    if (poyoEnabled && poyoApiKey) {
+      providers.push({ id: "poyo", name: "Poyo.ai" });
+    }
+    if (muapiEnabled && muapiApiKey) {
+      providers.push({ id: "muapi", name: "MuAPI" });
+    }
     return providers;
-  }, [replicateEnabled, replicateApiKey, kieEnabled, kieApiKey]);
+  }, [replicateEnabled, replicateApiKey, kieEnabled, kieApiKey, poyoEnabled, poyoApiKey, muapiEnabled, muapiApiKey]);
 
   // Migrate legacy data: derive selectedModel from model field if missing
   useEffect(() => {
@@ -131,6 +137,12 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
       if (kieApiKey) {
         headers["X-Kie-Key"] = kieApiKey;
       }
+      if (poyoApiKey) {
+        headers["X-Poyo-Key"] = poyoApiKey;
+      }
+      if (muapiApiKey) {
+        headers["X-MuAPI-Key"] = muapiApiKey;
+      }
       const response = await deduplicatedFetch(`/api/models?provider=${currentProvider}&capabilities=${capabilities}`, { headers });
       if (response.ok) {
         const data = await response.json();
@@ -153,7 +165,7 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
     } finally {
       setIsLoadingModels(false);
     }
-  }, [currentProvider, replicateApiKey, falApiKey, kieApiKey]);
+  }, [currentProvider, replicateApiKey, falApiKey, kieApiKey, poyoApiKey, muapiApiKey]);
 
   useEffect(() => {
     fetchModels();
@@ -851,3 +863,4 @@ export function GenerateImageNode({ id, data, selected }: NodeProps<NanoBananaNo
  * with existing workflows but will be removed in a future version.
  */
 export { GenerateImageNode as NanoBananaNode };
+

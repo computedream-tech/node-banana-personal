@@ -64,6 +64,17 @@ const WaveSpeedIcon = () => (
   </svg>
 );
 
+const PoyoIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3.2a2.8 2.8 0 110 5.6 2.8 2.8 0 010-5.6zm0 13.6c-2.33 0-4.38-1.19-5.6-3 .04-1.86 3.73-2.88 5.6-2.88 1.86 0 5.56 1.02 5.6 2.88-1.22 1.81-3.27 3-5.6 3z" />
+  </svg>
+);
+
+const MuapiIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4 18V6h2.6l3.4 5.12L13.4 6H16v12h-2.4v-7.7l-3 4.48h-1.18l-3.02-4.5V18H4zm13.25 0l3.5-12H23l-3.5 12h-2.25z" />
+  </svg>
+);
 // Get provider icon component
 const getProviderIcon = (provider: ProviderType) => {
   switch (provider) {
@@ -75,6 +86,10 @@ const getProviderIcon = (provider: ProviderType) => {
       return <FalIcon />;
     case "wavespeed":
       return <WaveSpeedIcon />;
+    case "poyo":
+      return <PoyoIcon />;
+    case "muapi":
+      return <MuapiIcon />;
     default:
       return null;
   }
@@ -165,6 +180,8 @@ export function ProjectSetupModal({
     fal: false,
     kie: false,
     wavespeed: false,
+    poyo: false,
+    muapi: false,
   });
   const [overrideActive, setOverrideActive] = useState<Record<ProviderType, boolean>>({
     gemini: false,
@@ -174,6 +191,8 @@ export function ProjectSetupModal({
     fal: false,
     kie: false,
     wavespeed: false,
+    poyo: false,
+    muapi: false,
   });
   const [envStatus, setEnvStatus] = useState<EnvStatusResponse | null>(null);
 
@@ -205,7 +224,7 @@ export function ProjectSetupModal({
 
       // Sync local providers state
       setLocalProviders(providerSettings);
-      setShowApiKey({ gemini: false, openai: false, anthropic: false, replicate: false, fal: false, kie: false, wavespeed: false });
+      setShowApiKey({ gemini: false, openai: false, anthropic: false, replicate: false, fal: false, kie: false, wavespeed: false, poyo: false, muapi: false });
       // Initialize override as active if user already has a key set
       setOverrideActive({
         gemini: !!providerSettings.providers.gemini?.apiKey,
@@ -215,6 +234,8 @@ export function ProjectSetupModal({
         fal: !!providerSettings.providers.fal?.apiKey,
         kie: !!providerSettings.providers.kie?.apiKey,
         wavespeed: !!providerSettings.providers.wavespeed?.apiKey,
+        poyo: !!providerSettings.providers.poyo?.apiKey,
+        muapi: !!providerSettings.providers.muapi?.apiKey,
       });
       setError(null);
 
@@ -227,7 +248,7 @@ export function ProjectSetupModal({
       setLocalCanvasSettings(canvasNavigationSettings);
 
       // Fetch env status
-      fetch("/api/env-status")
+      fetch("/api/env-status", { cache: "no-store" })
         .then((res) => res.json())
         .then((data: EnvStatusResponse) => setEnvStatus(data))
         .catch(() => setEnvStatus(null));
@@ -312,7 +333,7 @@ export function ProjectSetupModal({
 
   const handleSaveProviders = () => {
     // Save each provider's settings
-    const providerIds: ProviderType[] = ["gemini", "openai", "anthropic", "replicate", "fal", "kie", "wavespeed"];
+    const providerIds: ProviderType[] = ["gemini", "openai", "anthropic", "replicate", "fal", "kie", "wavespeed", "poyo", "muapi"];
     for (const providerId of providerIds) {
       const local = localProviders.providers[providerId];
       const current = providerSettings.providers[providerId];
@@ -858,6 +879,101 @@ export function ProjectSetupModal({
               </div>
             </div>
 
+            {/* Poyo.ai Provider */}
+            <div className="p-3 bg-neutral-900 rounded-lg border border-neutral-700">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-neutral-100">Poyo.ai</span>
+                {envStatus?.poyo && !overrideActive.poyo ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-green-400">Configured via .env</span>
+                    <button
+                      type="button"
+                      onClick={() => setOverrideActive((prev) => ({ ...prev, poyo: true }))}
+                      className="px-2 py-1 text-xs text-neutral-400 hover:text-neutral-200 transition-colors"
+                    >
+                      Override
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type={showApiKey.poyo ? "text" : "password"}
+                      value={localProviders.providers.poyo?.apiKey || ""}
+                      onChange={(e) => updateLocalProvider("poyo", { apiKey: e.target.value || null })}
+                      placeholder="..."
+                      className="w-48 px-2 py-1 bg-neutral-800 border border-neutral-600 rounded-lg text-neutral-100 text-xs focus:outline-none focus:border-neutral-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey((prev) => ({ ...prev, poyo: !prev.poyo }))}
+                      className="text-xs text-neutral-400 hover:text-neutral-200"
+                    >
+                      {showApiKey.poyo ? "Hide" : "Show"}
+                    </button>
+                    {envStatus?.poyo && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOverrideActive((prev) => ({ ...prev, poyo: false }));
+                          updateLocalProvider("poyo", { apiKey: null });
+                        }}
+                        className="text-xs text-neutral-500 hover:text-neutral-300"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* MuAPI Provider */}
+            <div className="p-3 bg-neutral-900 rounded-lg border border-neutral-700">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-neutral-100">MuAPI</span>
+                {envStatus?.muapi && !overrideActive.muapi ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-green-400">Configured via .env</span>
+                    <button
+                      type="button"
+                      onClick={() => setOverrideActive((prev) => ({ ...prev, muapi: true }))}
+                      className="px-2 py-1 text-xs text-neutral-400 hover:text-neutral-200 transition-colors"
+                    >
+                      Override
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type={showApiKey.muapi ? "text" : "password"}
+                      value={localProviders.providers.muapi?.apiKey || ""}
+                      onChange={(e) => updateLocalProvider("muapi", { apiKey: e.target.value || null })}
+                      placeholder="..."
+                      className="w-48 px-2 py-1 bg-neutral-800 border border-neutral-600 rounded-lg text-neutral-100 text-xs focus:outline-none focus:border-neutral-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey((prev) => ({ ...prev, muapi: !prev.muapi }))}
+                      className="text-xs text-neutral-400 hover:text-neutral-200"
+                    >
+                      {showApiKey.muapi ? "Hide" : "Show"}
+                    </button>
+                    {envStatus?.muapi && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOverrideActive((prev) => ({ ...prev, muapi: false }));
+                          updateLocalProvider("muapi", { apiKey: null });
+                        }}
+                        className="text-xs text-neutral-500 hover:text-neutral-300"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             <p className="text-xs text-neutral-400 mt-2">
               Add API keys via <code className="px-1 py-0.5 bg-neutral-800 rounded">.env.local</code> for better security. Keys added here override .env and are stored in your browser.
             </p>
@@ -1285,3 +1401,10 @@ export function ProjectSetupModal({
     </div>
   );
 }
+
+
+
+
+
+
+

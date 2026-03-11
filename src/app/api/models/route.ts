@@ -37,6 +37,8 @@ import {
   setCachedWaveSpeedSchemas,
   WaveSpeedApiSchema,
 } from "@/lib/providers/cache";
+import { MUAPI_MODELS } from "@/lib/providers/muapiCatalog";
+import { POYO_MODELS } from "@/lib/providers/poyoCatalog";
 
 // API base URLs
 const REPLICATE_API_BASE = "https://api.replicate.com/v1";
@@ -953,6 +955,8 @@ export async function GET(
   const falKey = request.headers.get("X-Fal-Key") || process.env.FAL_API_KEY || null;
   const kieKey = request.headers.get("X-Kie-Key") || process.env.KIE_API_KEY || null;
   const wavespeedKey = request.headers.get("X-WaveSpeed-Key") || process.env.WAVESPEED_API_KEY || null;
+  const poyoKey = request.headers.get("X-Poyo-Key") || process.env.POYO_API_KEY || null;
+  const muapiKey = request.headers.get("X-MuAPI-Key") || process.env.MUAPI_API_KEY || null;
 
   // Build list of all available providers (have keys from env or client headers)
   const availableProviders: string[] = ["gemini"]; // Gemini always available
@@ -960,18 +964,20 @@ export async function GET(
   if (replicateKey) availableProviders.push("replicate");
   if (kieKey) availableProviders.push("kie");
   if (wavespeedKey) availableProviders.push("wavespeed");
+  if (poyoKey) availableProviders.push("poyo");
+  if (muapiKey) availableProviders.push("muapi");
 
-  // Determine which providers to fetch from (excluding gemini/kie - handled separately as hardcoded)
+  // Determine which providers to fetch from (excluding gemini/kie/poyo/muapi - handled as static catalogs)
   const providersToFetch: ProviderType[] = [];
   let includeGemini = false;
   let includeKie = false;
+  let includePoyo = false;
+  let includeMuapi = false;
 
   if (providerFilter) {
     if (providerFilter === "gemini") {
-      // Only Gemini requested - no external API calls needed
       includeGemini = true;
     } else if (providerFilter === "kie") {
-      // Only Kie requested - no external API calls needed (hardcoded models)
       if (kieKey) {
         includeKie = true;
       } else {
@@ -983,12 +989,34 @@ export async function GET(
           { status: 400 }
         );
       }
+    } else if (providerFilter === "poyo") {
+      if (poyoKey) {
+        includePoyo = true;
+      } else {
+        return NextResponse.json<ModelsErrorResponse>(
+          {
+            success: false,
+            error: "Poyo.ai API key required. Add POYO_API_KEY to .env.local or configure in Settings.",
+          },
+          { status: 400 }
+        );
+      }
+    } else if (providerFilter === "muapi") {
+      if (muapiKey) {
+        includeMuapi = true;
+      } else {
+        return NextResponse.json<ModelsErrorResponse>(
+          {
+            success: false,
+            error: "MuAPI key required. Add MUAPI_API_KEY to .env.local or configure in Settings.",
+          },
+          { status: 400 }
+        );
+      }
     } else if (providerFilter === "wavespeed") {
       if (wavespeedKey) {
-        // WaveSpeed requested with key - fetch from API
         providersToFetch.push("wavespeed");
       } else {
-        // WaveSpeed requested but no key configured
         return NextResponse.json<ModelsErrorResponse>(
           {
             success: false,
@@ -1004,11 +1032,12 @@ export async function GET(
       providersToFetch.push("fal");
     }
   } else {
-    // Include all providers that have keys configured
-    includeGemini = true; // Gemini always available
-    includeKie = kieKey ? true : false; // Kie only if API key is configured
+    includeGemini = true;
+    includeKie = !!kieKey;
+    includePoyo = !!poyoKey;
+    includeMuapi = !!muapiKey;
     if (wavespeedKey) {
-      providersToFetch.push("wavespeed"); // WaveSpeed if key is configured
+      providersToFetch.push("wavespeed");
     }
     if (replicateKey) {
       providersToFetch.push("replicate");
@@ -1018,18 +1047,16 @@ export async function GET(
     }
   }
 
-  // Gemini and Kie are always available (with key for Kie), so we don't fail if no external providers
-  if (providersToFetch.length === 0 && !includeGemini && !includeKie) {
+  if (providersToFetch.length === 0 && !includeGemini && !includeKie && !includePoyo && !includeMuapi) {
     return NextResponse.json<ModelsErrorResponse>(
       {
         success: false,
         error:
-          "No providers available. Add REPLICATE_API_KEY, FAL_API_KEY, KIE_API_KEY, or WAVESPEED_API_KEY to .env.local or configure in Settings.",
+          "No providers available. Add REPLICATE_API_KEY, FAL_API_KEY, KIE_API_KEY, WAVESPEED_API_KEY, POYO_API_KEY, or MUAPI_API_KEY to .env.local or configure in Settings.",
       },
       { status: 400 }
     );
   }
-
   const allModels: ProviderModel[] = [];
   const providerResults: Record<string, ProviderResult> = {};
   const errors: string[] = [];
@@ -1064,6 +1091,34 @@ export async function GET(
       success: true,
       count: kieModels.length,
       cached: true, // Hardcoded models are effectively "cached"
+    };
+    anyFromCache = true;
+  }
+
+  if (includePoyo) {
+    let poyoModels = POYO_MODELS;
+    if (searchQuery) {
+      poyoModels = filterModelsBySearch(poyoModels, searchQuery);
+    }
+    allModels.push(...poyoModels);
+    providerResults["poyo"] = {
+      success: true,
+      count: poyoModels.length,
+      cached: true,
+    };
+    anyFromCache = true;
+  }
+
+  if (includeMuapi) {
+    let muapiModels = MUAPI_MODELS;
+    if (searchQuery) {
+      muapiModels = filterModelsBySearch(muapiModels, searchQuery);
+    }
+    allModels.push(...muapiModels);
+    providerResults["muapi"] = {
+      success: true,
+      count: muapiModels.length,
+      cached: true,
     };
     anyFromCache = true;
   }
@@ -1188,3 +1243,6 @@ export async function GET(
 
   return NextResponse.json<ModelsSuccessResponse>(response);
 }
+
+
+

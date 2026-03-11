@@ -41,7 +41,7 @@ function setCachedModels(cacheKey: string, models: ProviderModel[], availablePro
   }
 }
 
-// Provider icons — all normalized to w-3.5 h-3.5 with viewBoxes cropped to fill consistently
+// Provider icons Ã¢â‚¬â€ all normalized to w-3.5 h-3.5 with viewBoxes cropped to fill consistently
 const ReplicateIcon = () => (
   <svg className="w-3.5 h-3.5" viewBox="0 0 1000 1000" fill="currentColor">
     <polygon points="1000,427.6 1000,540.6 603.4,540.6 603.4,1000 477,1000 477,427.6" />
@@ -76,6 +76,17 @@ const WaveSpeedIcon = () => (
   </svg>
 );
 
+const PoyoIcon = () => (
+  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3.2a2.8 2.8 0 110 5.6 2.8 2.8 0 010-5.6zm0 13.6c-2.33 0-4.38-1.19-5.6-3 .04-1.86 3.73-2.88 5.6-2.88 1.86 0 5.56 1.02 5.6 2.88-1.22 1.81-3.27 3-5.6 3z" />
+  </svg>
+);
+
+const MuapiIcon = () => (
+  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4 18V6h2.6l3.4 5.12L13.4 6H16v12h-2.4v-7.7l-3 4.48h-1.18l-3.02-4.5V18H4zm13.25 0l3.5-12H23l-3.5 12h-2.25z" />
+  </svg>
+);
 // Get the center of the React Flow pane in screen coordinates
 function getPaneCenter() {
   const pane = document.querySelector(".react-flow");
@@ -126,7 +137,7 @@ export function ModelSearchDialog({
     trackModelUsage,
   } = useWorkflowStore();
   // Use stable selector for API keys to prevent unnecessary re-fetches
-  const { replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey } = useProviderApiKeys();
+  const { replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey, poyoApiKey, muapiApiKey } = useProviderApiKeys();
   const { screenToFlowPosition } = useReactFlow();
 
   // State
@@ -232,6 +243,12 @@ export function ModelSearchDialog({
       if (wavespeedApiKey) {
         headers["X-WaveSpeed-Key"] = wavespeedApiKey;
       }
+      if (poyoApiKey) {
+        headers["X-Poyo-Key"] = poyoApiKey;
+      }
+      if (muapiApiKey) {
+        headers["X-MuAPI-Key"] = muapiApiKey;
+      }
 
       const response = await deduplicatedFetch(`/api/models?${params.toString()}`, {
         headers,
@@ -269,7 +286,7 @@ export function ModelSearchDialog({
         setIsLoading(false);
       }
     }
-  }, [debouncedSearch, providerFilter, capabilityFilter, replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey]);
+  }, [debouncedSearch, providerFilter, capabilityFilter, replicateApiKey, falApiKey, kieApiKey, wavespeedApiKey, poyoApiKey, muapiApiKey]);
 
   // Fetch models when filters change
   useEffect(() => {
@@ -393,6 +410,10 @@ export function ModelSearchDialog({
         return "bg-orange-500/20 text-orange-300";
       case "wavespeed":
         return "bg-purple-500/20 text-purple-300";
+      case "poyo":
+        return "bg-rose-500/20 text-rose-300";
+      case "muapi":
+        return "bg-sky-500/20 text-sky-300";
       default:
         return "bg-neutral-500/20 text-neutral-300";
     }
@@ -411,6 +432,10 @@ export function ModelSearchDialog({
         return "Kie.ai";
       case "wavespeed":
         return "WaveSpeed";
+      case "poyo":
+        return "Poyo.ai";
+      case "muapi":
+        return "MuAPI";
       default:
         return provider;
     }
@@ -423,12 +448,14 @@ export function ModelSearchDialog({
     if (replicateApiKey) providers.add("replicate");
     if (kieApiKey) providers.add("kie");
     if (wavespeedApiKey) providers.add("wavespeed");
+    if (poyoApiKey) providers.add("poyo");
+    if (muapiApiKey) providers.add("muapi");
     // Server-side keys (from env vars, reported by /api/models)
     for (const p of serverAvailableProviders) {
       providers.add(p as ProviderType);
     }
     return providers;
-  }, [replicateApiKey, kieApiKey, wavespeedApiKey, serverAvailableProviders]);
+  }, [replicateApiKey, kieApiKey, wavespeedApiKey, poyoApiKey, muapiApiKey, serverAvailableProviders]);
 
   // Reset provider filter if current selection becomes unavailable
   useEffect(() => {
@@ -497,6 +524,10 @@ export function ModelSearchDialog({
         return `https://fal.ai/models/${model.id}`;
       case "wavespeed":
         return `https://wavespeed.ai`;
+      case "poyo":
+        return `https://poyo.ai`;
+      case "muapi":
+        return `https://muapi.ai`;
       default:
         return null;
     }
@@ -513,31 +544,31 @@ export function ModelSearchDialog({
       switch (cap) {
         case "text-to-image":
           color = "bg-green-500/20 text-green-300";
-          label = "txt→img";
+          label = "txt-img";
           break;
         case "image-to-image":
           color = "bg-cyan-500/20 text-cyan-300";
-          label = "img→img";
+          label = "img-img";
           break;
         case "text-to-video":
           color = "bg-purple-500/20 text-purple-300";
-          label = "txt→vid";
+          label = "txt-video";
           break;
         case "image-to-video":
           color = "bg-pink-500/20 text-pink-300";
-          label = "img→vid";
+          label = "img-video";
           break;
         case "text-to-3d":
           color = "bg-orange-500/20 text-orange-300";
-          label = "txt→3d";
+          label = "txt-3d";
           break;
         case "image-to-3d":
           color = "bg-amber-500/20 text-amber-300";
-          label = "img→3d";
+          label = "img-3d";
           break;
         case "text-to-audio":
           color = "bg-fuchsia-500/20 text-fuchsia-300";
-          label = "txt→audio";
+          label = "txt-audio";
           break;
       }
 
@@ -693,6 +724,32 @@ export function ModelSearchDialog({
                   }`}
                 >
                   <WaveSpeedIcon />
+                </button>
+              )}
+              {availableProviders.has("poyo") && (
+                <button
+                  onClick={() => setProviderFilter("poyo")}
+                  title="Poyo.ai"
+                  className={`p-2 rounded transition-colors ${
+                    providerFilter === "poyo"
+                      ? "bg-rose-500/20 text-rose-300"
+                      : "text-neutral-400 hover:text-rose-300 hover:bg-neutral-700"
+                  }`}
+                >
+                  <PoyoIcon />
+                </button>
+              )}
+              {availableProviders.has("muapi") && (
+                <button
+                  onClick={() => setProviderFilter("muapi")}
+                  title="MuAPI"
+                  className={`p-2 rounded transition-colors ${
+                    providerFilter === "muapi"
+                      ? "bg-sky-500/20 text-sky-300"
+                      : "text-neutral-400 hover:text-sky-300 hover:bg-neutral-700"
+                  }`}
+                >
+                  <MuapiIcon />
                 </button>
               )}
             </div>
@@ -965,6 +1022,11 @@ export function ModelSearchDialog({
                         {getProviderDisplayName(model.provider)}
                       </span>
                       {getCapabilityBadges(model.capabilities)}
+                      {model.vendor && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-600/40 text-neutral-300">
+                          {model.vendor}
+                        </span>
+                      )}
                     </div>
 
                     {/* Description - more lines */}
@@ -1011,3 +1073,7 @@ export function ModelSearchDialog({
   // Use portal to render outside React Flow stacking context
   return createPortal(dialogContent, document.body);
 }
+
+
+
+

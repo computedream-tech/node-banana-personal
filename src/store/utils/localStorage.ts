@@ -50,6 +50,8 @@ export const defaultProviderSettings: ProviderSettings = {
     fal: { id: "fal", name: "fal.ai", enabled: false, apiKey: null, apiKeyEnvVar: "FAL_API_KEY" },
     kie: { id: "kie", name: "Kie.ai", enabled: false, apiKey: null, apiKeyEnvVar: "KIE_API_KEY" },
     wavespeed: { id: "wavespeed", name: "WaveSpeed", enabled: false, apiKey: null, apiKeyEnvVar: "WAVESPEED_API_KEY" },
+    poyo: { id: "poyo", name: "Poyo.ai", enabled: false, apiKey: null, apiKeyEnvVar: "POYO_API_KEY" },
+    muapi: { id: "muapi", name: "MuAPI", enabled: false, apiKey: null, apiKeyEnvVar: "MUAPI_API_KEY" },
   }
 };
 
@@ -234,3 +236,4 @@ export const loadNanoBananaDefaults = loadGenerateImageDefaults;
  * @deprecated Backward-compatible alias. Use `saveGenerateImageDefaults` instead.
  */
 export const saveNanoBananaDefaults = saveGenerateImageDefaults;
+

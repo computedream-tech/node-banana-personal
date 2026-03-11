@@ -1,0 +1,326 @@
+{
+  "version": 1,
+  "id": "wf_1773170908227_5kf60awcm",
+  "name": "100 Icons",
+  "nodes": [
+    {
+      "id": "prompt-1",
+      "type": "prompt",
+      "position": {
+        "x": 871.756617508167,
+        "y": 375.72002113028265
+      },
+      "data": {
+        "prompt": "Give me a list of top used 10 icons in any saas project, only the name of the icon, no description, a word per line"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "llmGenerate-2",
+      "type": "llmGenerate",
+      "position": {
+        "x": 845.7122036988122,
+        "y": 602.5096719506424
+      },
+      "data": {
+        "inputPrompt": "Give me a list of top used 10 icons in any saas project, only the name of the icon, no description, a word per line",
+        "inputImages": [],
+        "outputText": "Dashboard\nSettings\nSearch\nUser\nBell\nChart\nPlus\nHelp\nMenu\nCalendar",
+        "provider": "google",
+        "model": "gemini-3-flash-preview",
+        "temperature": 0.7,
+        "maxTokens": 8192,
+        "status": "complete",
+        "error": null
+      },
+      "style": {
+        "width": 320,
+        "height": 360
+      },
+      "measured": {
+        "width": 348,
+        "height": 451
+      },
+      "selected": false,
+      "dragging": false,
+      "width": 348,
+      "height": 451,
+      "resizing": false
+    },
+    {
+      "id": "imageInput-3",
+      "type": "imageInput",
+      "position": {
+        "x": 1231.6988718606988,
+        "y": 6.114815262826653
+      },
+      "data": {
+        "image": null,
+        "filename": "pasted-1773171259864.png",
+        "dimensions": {
+          "width": 450,
+          "height": 450
+        },
+        "imageRef": "img-mml0f9lc-qmxz16"
+      },
+      "style": {
+        "width": 300,
+        "height": 280
+      },
+      "measured": {
+        "width": 300,
+        "height": 280
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "imageInput-4",
+      "type": "imageInput",
+      "position": {
+        "x": 920.1057271338844,
+        "y": 7.277476250613319
+      },
+      "data": {
+        "image": null,
+        "filename": "pasted-1773171268874.png",
+        "dimensions": {
+          "width": 450,
+          "height": 450
+        },
+        "imageRef": "img-mml0f9pf-032i7l"
+      },
+      "style": {
+        "width": 300,
+        "height": 280
+      },
+      "measured": {
+        "width": 300,
+        "height": 280
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "imageInput-5",
+      "type": "imageInput",
+      "position": {
+        "x": 1235.1868548240586,
+        "y": -278.7371267448955
+      },
+      "data": {
+        "image": null,
+        "filename": "pasted-1773171273066.png",
+        "dimensions": {
+          "width": 450,
+          "height": 450
+        },
+        "imageRef": "img-mml0f9pv-st7nex"
+      },
+      "style": {
+        "width": 300,
+        "height": 280
+      },
+      "measured": {
+        "width": 300,
+        "height": 280
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "imageInput-6",
+      "type": "imageInput",
+      "position": {
+        "x": 923.5937100972442,
+        "y": -281.06244872046875
+      },
+      "data": {
+        "image": null,
+        "filename": "pasted-1773171278826.png",
+        "dimensions": {
+          "width": 450,
+          "height": 450
+        },
+        "imageRef": "img-mml0f9qc-sphhob"
+      },
+      "style": {
+        "width": 300,
+        "height": 280
+      },
+      "measured": {
+        "width": 300,
+        "height": 280
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "prompt-7",
+      "type": "prompt",
+      "position": {
+        "x": 1255.9562486438197,
+        "y": 366.12498201168717
+      },
+      "data": {
+        "prompt": "I want to generate this list of icons:\nDashboard\nSettings\nSearch\nUser\nBell\nChart\nPlus\nHelp\nMenu\nCalendar\nBut the style should look like from the images I attaches, I need for each icon a prompt line. Add to the prompt something like \"style should look like the images attached\". Also add the name of the icon into the sentence and dont use ** to separate the icon"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 320,
+        "height": 220
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "llmGenerate-8",
+      "type": "llmGenerate",
+      "position": {
+        "x": 1259.1250893043648,
+        "y": 609.2740553351908
+      },
+      "data": {
+        "inputPrompt": "I want to generate this list of icons:\nDashboard\nSettings\nSearch\nUser\nBell\nChart\nPlus\nHelp\nMenu\nCalendar\nBut the style should look like from the images I attaches, I need for each icon a prompt line. Add to the prompt something like \"style should look like the images attached\". Also add the name of the icon into the sentence and dont use ** to separate the icon",
+        "inputImages": [],
+        "outputText": "Here are the prompt lines for each icon, designed to match the glossy 3D aesthetic, vibrant blue and lime green color palette, and translucent glass textures seen in your images:\n\n1. A 3D icon for Dashboard featuring a glossy blue interface panel with floating lime green data widgets and translucent glass layers, style should look like the images attached.\n\n2. A 3D icon for Settings depicting a smooth rounded blue gear interlocked with a smaller lime green translucent cog, style should look like the images attached.\n\n3. A 3D icon for Search showing a thick glossy blue magnifying glass with a translucent frosted glass lens and a lime green handle, style should look like the images attached.\n\n4. A 3D icon for User featuring a rounded blue avatar silhouette floating in front of a lime green glossy circle with soft studio lighting, style should look like the images attached.\n\n5. A 3D icon for Bell designed as a vibrant blue notification bell with a lime green clapper and a translucent glass glow, style should look like the images attached.\n\n6. A 3D icon for Chart showing three-dimensional glossy blue and lime green rising bars on a translucent circular platform, style should look like the images attached.\n\n7. A 3D icon for Plus consisting of a thick blue cross with rounded edges and a lime green translucent shadow effect, style should look like the images attached.\n\n8. A 3D icon for Help featuring a glossy blue question mark floating inside a translucent lime green sphere with a polished finish, style should look like the images attached.\n\n9. A 3D icon for Menu showing three thick glossy blue horizontal bars with rounded lime green accents and a soft 3D depth, style should look like the images attached.\n\n10. A 3D icon for Calendar depicting a blue square block with a lime green page marker and translucent glass binder rings, style should look like the images attached.",
+        "provider": "google",
+        "model": "gemini-3-flash-preview",
+        "temperature": 0.7,
+        "maxTokens": 8192,
+        "status": "complete",
+        "error": null,
+        "inputImageRefs": [
+          "img-mml0j4he-vpwa5n",
+          "img-mml0j4i9-2ck0ia",
+          "img-mml0j4j5-oqc3bv",
+          "img-mml0j4k3-87apbm"
+        ]
+      },
+      "style": {
+        "width": 320,
+        "height": 360
+      },
+      "measured": {
+        "width": 776,
+        "height": 584
+      },
+      "selected": false,
+      "dragging": false,
+      "width": 776,
+      "height": 584,
+      "resizing": false
+    },
+    {
+      "id": "prompt-10",
+      "type": "prompt",
+      "position": {
+        "x": 2099.4358036469175,
+        "y": 355.92563098151555
+      },
+      "data": {
+        "prompt": " A 3D icon for Dashboard featuring a glossy blue interface panel with floating lime green data widgets and translucent glass layers, style should look like the images attached.*\nA 3D icon for Settings depicting a smooth rounded blue gear interlocked with a smaller lime green translucent cog, style should look like the images attached.*\nA 3D icon for Search showing a thick glossy blue magnifying glass with a translucent frosted glass lens and a lime green handle, style should look like the images attached.*\nA 3D icon for User featuring a rounded blue avatar silhouette floating in front of a lime green glossy circle with soft studio lighting, style should look like the images attached.*\nA 3D icon for Bell designed as a vibrant blue notification bell with a lime green clapper and a translucent glass glow, style should look like the images attached.*\nA 3D icon for Chart showing three-dimensional glossy blue and lime green rising bars on a translucent circular platform, style should look like the images attached.*\nA 3D icon for Plus consisting of a thick blue cross with rounded edges and a lime green translucent shadow effect, style should look like the images attached.*\nA 3D icon for Help featuring a glossy blue question mark floating inside a translucent lime green sphere with a polished finish, style should look like the images attached.*\nA 3D icon for Menu showing three thick glossy blue horizontal bars with rounded lime green accents and a soft 3D depth, style should look like the images attached.*\nA 3D icon for Calendar depicting a blue square block with a lime green page marker and translucent glass binder rings, style should look like the images attached.*"
+      },
+      "style": {
+        "width": 320,
+        "height": 220
+      },
+      "measured": {
+        "width": 1003,
+        "height": 270
+      },
+      "selected": false,
+      "dragging": false,
+      "width": 1003,
+      "height": 270,
+      "resizing": false
+    }
+  ],
+  "edges": [
+    {
+      "type": "editable",
+      "animated": false,
+      "source": "prompt-1",
+      "sourceHandle": "text",
+      "target": "llmGenerate-2",
+      "targetHandle": "text",
+      "id": "edge-prompt-1-llmGenerate-2-text-text",
+      "data": {
+        "createdAt": 1773170955905
+      },
+      "selected": false
+    },
+    {
+      "type": "editable",
+      "animated": false,
+      "source": "prompt-7",
+      "sourceHandle": "text",
+      "target": "llmGenerate-8",
+      "targetHandle": "text",
+      "id": "edge-prompt-7-llmGenerate-8-text-text",
+      "data": {
+        "createdAt": 1773170955905
+      },
+      "selected": false
+    },
+    {
+      "type": "editable",
+      "animated": false,
+      "source": "imageInput-3",
+      "sourceHandle": "image",
+      "target": "llmGenerate-8",
+      "targetHandle": "image",
+      "id": "edge-imageInput-3-llmGenerate-8-image-image",
+      "data": {
+        "createdAt": 1773171464205
+      },
+      "selected": false
+    },
+    {
+      "source": "imageInput-4",
+      "sourceHandle": "image",
+      "target": "llmGenerate-8",
+      "targetHandle": "image",
+      "id": "edge-imageInput-4-llmGenerate-8-image-image",
+      "data": {
+        "createdAt": 1773171464205
+      },
+      "selected": false
+    },
+    {
+      "source": "imageInput-5",
+      "sourceHandle": "image",
+      "target": "llmGenerate-8",
+      "targetHandle": "image",
+      "id": "edge-imageInput-5-llmGenerate-8-image-image",
+      "data": {
+        "createdAt": 1773171464205
+      },
+      "selected": false
+    },
+    {
+      "source": "imageInput-6",
+      "sourceHandle": "image",
+      "target": "llmGenerate-8",
+      "targetHandle": "image",
+      "id": "edge-imageInput-6-llmGenerate-8-image-image",
+      "data": {
+        "createdAt": 1773171464206
+      },
+      "selected": false
+    }
+  ],
+  "edgeStyle": "curved"
+}
