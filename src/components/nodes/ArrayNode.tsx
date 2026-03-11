@@ -196,7 +196,7 @@ export function ArrayNode({ id, data, selected }: NodeProps<ArrayNodeType>) {
         </svg>
       </button>
 
-      <div className="flex flex-col gap-2 pt-1 flex-1 min-h-0">
+      <div className="flex flex-col gap-2 pt-3 flex-1 min-h-0">
         <div className="flex items-center gap-2 max-w-[75%]">
           <label className="shrink-0 text-[11px] text-neutral-400">Split</label>
           <select
