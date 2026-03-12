@@ -305,7 +305,7 @@ export function BaseNode({
           setHoveredNodeId(null);
         }}
       >
-        <div ref={contentRef} style={{ contain: "layout style paint" }} className={contentClassName ?? (fullBleed ? "flex-1 min-h-0 relative" : "px-3 pb-4 flex-1 min-h-0 overflow-hidden flex flex-col")}>{children}</div>
+        <div ref={contentRef} style={{ contain: "layout style" }} className={contentClassName ?? (fullBleed ? "flex-1 min-h-0 relative" : "px-3 pb-4 flex-1 min-h-0 overflow-hidden flex flex-col")}>{children}</div>
       </div>
       {settingsPanel && (
         <div ref={settingsPanelRef}>
