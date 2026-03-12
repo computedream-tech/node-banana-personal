@@ -66,27 +66,32 @@ export function useAdaptiveImageSrc(
     // Check if generation is already in progress
     const existing = getPending(fullSrc);
     if (existing) {
-      existing.then((thumb) => {
-        if (prevSrcRef.current === fullSrc) {
-          setThumbnailSrc(thumb);
-        }
-      });
+      existing
+        .then((thumb) => {
+          if (prevSrcRef.current === fullSrc) {
+            setThumbnailSrc(thumb);
+          }
+        })
+        .catch(() => {});
       return;
     }
 
     // Generate thumbnail
-    const promise = generateThumbnail(fullSrc).then((thumb) => {
-      setThumbnail(fullSrc, thumb);
-      removePending(fullSrc);
-      return thumb;
-    });
+    const promise = generateThumbnail(fullSrc)
+      .then((thumb) => {
+        setThumbnail(fullSrc, thumb);
+        if (prevSrcRef.current === fullSrc) {
+          setThumbnailSrc(thumb);
+        }
+        return thumb;
+      })
+      .finally(() => {
+        removePending(fullSrc);
+      });
     setPending(fullSrc, promise);
 
-    promise.then((thumb) => {
-      if (prevSrcRef.current === fullSrc) {
-        setThumbnailSrc(thumb);
-      }
-    });
+    // Suppress unhandled rejection — fullSrc falls back gracefully
+    promise.catch(() => {});
   }, [fullSrc]);
 
   if (!fullSrc) return null;
