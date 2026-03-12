@@ -296,12 +296,12 @@ export function BaseNode({
           ${!fullBleed && selected && settingsExpanded ? "border-blue-500" : ""}
           ${className}
         `}
-        onMouseEnter={() => {
-          if (isPanningRef.current || isDraggingNodeRef.current) return;
+        onMouseEnter={(e) => {
+          if (e.buttons !== 0 || isPanningRef.current || isDraggingNodeRef.current) return;
           setHoveredNodeId(id);
         }}
-        onMouseLeave={() => {
-          if (isPanningRef.current || isDraggingNodeRef.current) return;
+        onMouseLeave={(e) => {
+          if (e.buttons !== 0 || isPanningRef.current || isDraggingNodeRef.current) return;
           setHoveredNodeId(null);
         }}
       >
