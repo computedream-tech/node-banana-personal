@@ -80,21 +80,9 @@ export function BaseNode({
   const trackedSettingsHeightRef = useRef(0);
   const isAnimatingRef = useRef(false);
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isInitialMountRef = useRef(true);
 
   // Adjust node height when settings expand or collapse
   useLayoutEffect(() => {
-    // On initial mount with settings already expanded (e.g. remount after
-    // onlyRenderVisibleElements), the node height already includes the panel.
-    // Just sync the tracked ref without adding height again.
-    if (isInitialMountRef.current) {
-      isInitialMountRef.current = false;
-      if (settingsExpanded && settingsPanelRef.current) {
-        trackedSettingsHeightRef.current = settingsPanelRef.current.offsetHeight;
-      }
-      return;
-    }
-
     // Cancel any pending animation timeout from a previous toggle (handles rapid toggling)
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
