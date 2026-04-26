@@ -24,6 +24,7 @@ import type { LLMProvider, LLMModelType, SelectedModel, ProviderType } from "./p
  */
 export type NodeType =
   | "imageInput"
+  | "imageBatchArray"
   | "audioInput"
   | "videoInput"
   | "annotation"
@@ -62,6 +63,23 @@ export interface ImageInputNodeData extends BaseNodeData {
   filename: string | null;
   dimensions: { width: number; height: number } | null;
   isOptional?: boolean;
+}
+
+/**
+ * One row in an Image Batch Array. A row may contain multiple ordered images.
+ */
+export interface ImageBatchArrayRow {
+  id: string;
+  images: string[];
+  prompt?: string;
+}
+
+/**
+ * Image Batch Array node - stores row-based image groups for future batch execution.
+ */
+export interface ImageBatchArrayNodeData extends BaseNodeData {
+  rows: ImageBatchArrayRow[];
+  requestsAtATime: number;
 }
 
 /**
@@ -498,6 +516,7 @@ export interface GLBViewerNodeData extends BaseNodeData {
  */
 export type WorkflowNodeData =
   | ImageInputNodeData
+  | ImageBatchArrayNodeData
   | AudioInputNodeData
   | VideoInputNodeData
   | AnnotationNodeData

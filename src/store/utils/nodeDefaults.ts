@@ -2,6 +2,7 @@ import {
   NodeType,
   ModelType,
   ImageInputNodeData,
+  ImageBatchArrayNodeData,
   AudioInputNodeData,
   VideoInputNodeData,
   AnnotationNodeData,
@@ -37,6 +38,7 @@ import { loadGenerateImageDefaults, loadNodeDefaults } from "./localStorage";
  */
 export const defaultNodeDimensions: Record<NodeType, { width: number; height: number }> = {
   imageInput: { width: 300, height: 280 },
+  imageBatchArray: { width: 840, height: 560 },
   audioInput: { width: 300, height: 200 },
   videoInput: { width: 300, height: 280 },
   annotation: { width: 300, height: 280 },
@@ -92,6 +94,11 @@ export const createDefaultNodeData = (type: NodeType): WorkflowNodeData => {
         filename: null,
         dimensions: null,
       } as ImageInputNodeData;
+    case "imageBatchArray":
+      return {
+        rows: [],
+        requestsAtATime: 1,
+      } as ImageBatchArrayNodeData;
     case "audioInput":
       return {
         audioFile: null,

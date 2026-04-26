@@ -9,6 +9,7 @@ import {
   WorkflowNode,
   WorkflowEdge,
   ImageInputNodeData,
+  ImageBatchArrayNodeData,
   AudioInputNodeData,
   VideoInputNodeData,
   AnnotationNodeData,
@@ -40,6 +41,7 @@ export interface ConnectedInputs {
   model3d: string | null;
   text: string | null;
   textItems: string[]; // All items from array batch mode (empty when not in batch)
+  imageBatchItems?: string[][]; // Row-based image groups from Image Batch Array nodes
   dynamicInputs: Record<string, string | string[]>;
   easeCurve: { bezierHandles: [number, number, number, number]; easingPreset: string | null; outputDuration: number } | null;
 }
@@ -170,7 +172,7 @@ export function getConnectedInputsPure(
   dimmedNodeIds?: Set<string>
 ): ConnectedInputs {
   const _visited = visited || new Set<string>();
-  if (_visited.has(nodeId)) return { images: [], videos: [], audio: [], model3d: null, text: null, textItems: [], dynamicInputs: {}, easeCurve: null };
+  if (_visited.has(nodeId)) return { images: [], videos: [], audio: [], model3d: null, text: null, textItems: [], imageBatchItems: [], dynamicInputs: {}, easeCurve: null };
   _visited.add(nodeId);
   const images: string[] = [];
   const videos: string[] = [];
@@ -178,6 +180,7 @@ export function getConnectedInputsPure(
   let model3d: string | null = null;
   let text: string | null = null;
   const textItems: string[] = [];
+  const imageBatchItems: string[][] = [];
   const dynamicInputs: Record<string, string | string[]> = {};
   let easeCurve: ConnectedInputs["easeCurve"] = null;
 
@@ -241,6 +244,22 @@ export function getConnectedInputsPure(
         return; // Skip normal getSourceOutput processing
       }
 
+      // Image Batch Array output metadata for future batch execution.
+      // TODO Phase 2: generation executors should consume imageBatchItems by
+      // appending each row's images after normal upstream images per job.
+      if (sourceNode.type === "imageBatchArray") {
+        const batchData = sourceNode.data as ImageBatchArrayNodeData;
+        const rows = Array.isArray(batchData.rows) ? batchData.rows : [];
+        imageBatchItems.push(
+          ...rows.map((row) =>
+            Array.isArray(row.images)
+              ? row.images.filter((image): image is string => typeof image === "string" && image.length > 0)
+              : []
+          )
+        );
+        return;
+      }
+
       // Router passthrough — traverse upstream to find actual data source
       if (sourceNode.type === "router") {
         const routerInputs = passthroughCache.get(sourceNode.id)
@@ -251,6 +270,7 @@ export function getConnectedInputsPure(
 
         if (edgeType === "image" || (!edgeType && isImageHandle(edge.sourceHandle))) {
           images.push(...routerInputs.images);
+          imageBatchItems.push(...(routerInputs.imageBatchItems ?? []));
         } else if (edgeType === "text" || (!edgeType && isTextHandle(edge.sourceHandle))) {
           if (routerInputs.text) text = routerInputs.text;
         } else if (edgeType === "video") {
@@ -285,6 +305,7 @@ export function getConnectedInputsPure(
 
         if (edgeType === "image") {
           images.push(...switchInputs.images);
+          imageBatchItems.push(...(switchInputs.imageBatchItems ?? []));
         } else if (edgeType === "text") {
           if (switchInputs.text) text = switchInputs.text;
         } else if (edgeType === "video") {
@@ -384,7 +405,7 @@ export function getConnectedInputsPure(
     }
   }
 
-  return { images, videos, audio, model3d, text, textItems, dynamicInputs, easeCurve };
+  return { images, videos, audio, model3d, text, textItems, imageBatchItems, dynamicInputs, easeCurve };
 }
 
 /**

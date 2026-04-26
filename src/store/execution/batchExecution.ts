@@ -36,6 +36,9 @@ export async function runBatchIfApplicable(
   }
 
   const connectedInputs = executionCtx.getConnectedInputs(node.id);
+  // TODO Phase 2: add Image Batch Array support here. `imageBatchItems`
+  // should drive one generation per row, appending row images after the
+  // normal upstream images while preserving order.
   if (connectedInputs.textItems.length === 0) {
     return false;
   }
