@@ -27,6 +27,12 @@ const BATCH_NODE_TYPES = new Set([...TEXT_BATCH_NODE_TYPES, ...IMAGE_BATCH_NODE_
 type BatchOptions = { useStoredFallback?: boolean };
 type GalleryBatchOutput = { index: number; image: string };
 type NodeBatchOutput = { index: number; image: string; historyItem: CarouselImageItem };
+type DynamicInputs = Record<string, string | string[]>;
+type BatchInputSchema = {
+  name: string;
+  type: string;
+  isArray?: boolean;
+};
 
 function getImageBatchConcurrency(value: number | undefined): number {
   const parsed = Math.floor(Number(value));
@@ -56,6 +62,44 @@ function getStoredFallbackInputs(executionCtx: NodeExecutionContext): {
   const inputPrompt = typeof data.inputPrompt === "string" ? data.inputPrompt : null;
 
   return { inputImages, inputPrompt };
+}
+
+function getBatchInputSchema(executionCtx: NodeExecutionContext): BatchInputSchema[] {
+  const freshNode = executionCtx.getFreshNode(executionCtx.node.id);
+  const data = (freshNode?.data ?? executionCtx.node.data) as { inputSchema?: BatchInputSchema[] };
+  return Array.isArray(data.inputSchema) ? data.inputSchema : [];
+}
+
+function isArrayImageInput(input: BatchInputSchema): boolean {
+  if (input.isArray === true) return true;
+
+  const normalizedName = input.name.toLowerCase();
+  return normalizedName.endsWith("s") || normalizedName.includes("images");
+}
+
+function withBatchedImageDynamicInputs(
+  dynamicInputs: DynamicInputs,
+  inputSchema: BatchInputSchema[],
+  normalImages: string[],
+  finalImages: string[],
+): DynamicInputs {
+  if (finalImages.length === normalImages.length) {
+    return dynamicInputs;
+  }
+
+  const imageInputs = inputSchema.filter((input) => input.type === "image" && input.name);
+  const existingArrayInput = imageInputs.find((input) => Array.isArray(dynamicInputs[input.name]));
+  const schemaArrayInput = imageInputs.find(isArrayImageInput);
+  const inputToUpdate = existingArrayInput ?? schemaArrayInput;
+
+  if (!inputToUpdate) {
+    return dynamicInputs;
+  }
+
+  return {
+    ...dynamicInputs,
+    [inputToUpdate.name]: finalImages,
+  };
 }
 
 async function executeBatchableNodeOnce(
@@ -250,14 +294,32 @@ async function runImageBatch(
             : options?.useStoredFallback
               ? storedFallbackInputs.inputImages
               : [];
+        const rowImages = imageBatchItems[index] ?? [];
+        const finalImages = [...normalImages, ...rowImages];
         const masterPrompt = useTextItemsByIndex
           ? textItems[index]
           : inputs.text ?? (options?.useStoredFallback ? storedFallbackInputs.inputPrompt : null);
+        const dynamicInputs = withBatchedImageDynamicInputs(
+          inputs.dynamicInputs,
+          getBatchInputSchema(executionCtx),
+          normalImages,
+          finalImages,
+        );
+
+        logger.info("node.execution", "Image Batch Array row image injection", {
+          nodeId,
+          nodeType: node.type,
+          batchIndex: index,
+          normalImageCount: normalImages.length,
+          rowImageCount: rowImages.length,
+          finalImageCount: finalImages.length,
+        });
 
         return {
           ...inputs,
-          images: [...normalImages, ...(imageBatchItems[index] ?? [])],
+          images: finalImages,
           text: appendRowPrompt(masterPrompt, imageBatchPrompts[index]),
+          dynamicInputs,
           textItems: [],
           imageBatchItems: [],
           imageBatchPrompts: [],
