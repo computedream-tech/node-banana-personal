@@ -42,6 +42,9 @@ export interface ConnectedInputs {
   text: string | null;
   textItems: string[]; // All items from array batch mode (empty when not in batch)
   imageBatchItems?: string[][]; // Row-based image groups from Image Batch Array nodes
+  imageBatchPrompts?: Array<string | undefined>; // Optional per-row prompt suffixes aligned to imageBatchItems
+  imageBatchRequestsAtATime?: number; // Concurrency requested by the first connected Image Batch Array
+  imageBatchSourceNodeId?: string; // First connected Image Batch Array source node
   dynamicInputs: Record<string, string | string[]>;
   easeCurve: { bezierHandles: [number, number, number, number]; easingPreset: string | null; outputDuration: number } | null;
 }
@@ -172,7 +175,22 @@ export function getConnectedInputsPure(
   dimmedNodeIds?: Set<string>
 ): ConnectedInputs {
   const _visited = visited || new Set<string>();
-  if (_visited.has(nodeId)) return { images: [], videos: [], audio: [], model3d: null, text: null, textItems: [], imageBatchItems: [], dynamicInputs: {}, easeCurve: null };
+  if (_visited.has(nodeId)) {
+    return {
+      images: [],
+      videos: [],
+      audio: [],
+      model3d: null,
+      text: null,
+      textItems: [],
+      imageBatchItems: [],
+      imageBatchPrompts: [],
+      imageBatchRequestsAtATime: 1,
+      imageBatchSourceNodeId: undefined,
+      dynamicInputs: {},
+      easeCurve: null,
+    };
+  }
   _visited.add(nodeId);
   const images: string[] = [];
   const videos: string[] = [];
@@ -181,8 +199,35 @@ export function getConnectedInputsPure(
   let text: string | null = null;
   const textItems: string[] = [];
   const imageBatchItems: string[][] = [];
+  const imageBatchPrompts: Array<string | undefined> = [];
+  let imageBatchRequestsAtATime = 1;
+  let imageBatchSourceNodeId: string | undefined;
+  let hasImageBatchSource = false;
   const dynamicInputs: Record<string, string | string[]> = {};
   let easeCurve: ConnectedInputs["easeCurve"] = null;
+
+  const setImageBatchSource = (
+    items: string[][],
+    prompts: Array<string | undefined>,
+    requestsAtATime: number | undefined,
+    sourceNodeId: string | undefined,
+  ) => {
+    if (hasImageBatchSource) {
+      // TODO: Support multiple Image Batch Array sources. For now execution
+      // uses the first connected batch source to avoid ambiguous row pairing.
+      return;
+    }
+
+    hasImageBatchSource = true;
+    imageBatchItems.push(...items);
+    imageBatchPrompts.push(...items.map((_, index) => prompts[index]));
+
+    const parsedConcurrency = Math.floor(Number(requestsAtATime));
+    imageBatchRequestsAtATime = Number.isFinite(parsedConcurrency)
+      ? Math.max(1, parsedConcurrency)
+      : 1;
+    imageBatchSourceNodeId = sourceNodeId;
+  };
 
   // Get the target node to check for inputSchema
   const targetNode = nodes.find((n) => n.id === nodeId);
@@ -244,18 +289,22 @@ export function getConnectedInputsPure(
         return; // Skip normal getSourceOutput processing
       }
 
-      // Image Batch Array output metadata for future batch execution.
-      // TODO Phase 2: generation executors should consume imageBatchItems by
-      // appending each row's images after normal upstream images per job.
       if (sourceNode.type === "imageBatchArray") {
         const batchData = sourceNode.data as ImageBatchArrayNodeData;
         const rows = Array.isArray(batchData.rows) ? batchData.rows : [];
-        imageBatchItems.push(
-          ...rows.map((row) =>
+        setImageBatchSource(
+          rows.map((row) =>
             Array.isArray(row.images)
               ? row.images.filter((image): image is string => typeof image === "string" && image.length > 0)
               : []
-          )
+          ),
+          rows.map((row) =>
+            typeof row.prompt === "string" && row.prompt.trim().length > 0
+              ? row.prompt
+              : undefined
+          ),
+          batchData.requestsAtATime,
+          sourceNode.id,
         );
         return;
       }
@@ -270,7 +319,14 @@ export function getConnectedInputsPure(
 
         if (edgeType === "image" || (!edgeType && isImageHandle(edge.sourceHandle))) {
           images.push(...routerInputs.images);
-          imageBatchItems.push(...(routerInputs.imageBatchItems ?? []));
+          if ((routerInputs.imageBatchItems?.length ?? 0) > 0 || routerInputs.imageBatchSourceNodeId) {
+            setImageBatchSource(
+              routerInputs.imageBatchItems ?? [],
+              routerInputs.imageBatchPrompts ?? [],
+              routerInputs.imageBatchRequestsAtATime,
+              routerInputs.imageBatchSourceNodeId,
+            );
+          }
         } else if (edgeType === "text" || (!edgeType && isTextHandle(edge.sourceHandle))) {
           if (routerInputs.text) text = routerInputs.text;
         } else if (edgeType === "video") {
@@ -305,7 +361,14 @@ export function getConnectedInputsPure(
 
         if (edgeType === "image") {
           images.push(...switchInputs.images);
-          imageBatchItems.push(...(switchInputs.imageBatchItems ?? []));
+          if ((switchInputs.imageBatchItems?.length ?? 0) > 0 || switchInputs.imageBatchSourceNodeId) {
+            setImageBatchSource(
+              switchInputs.imageBatchItems ?? [],
+              switchInputs.imageBatchPrompts ?? [],
+              switchInputs.imageBatchRequestsAtATime,
+              switchInputs.imageBatchSourceNodeId,
+            );
+          }
         } else if (edgeType === "text") {
           if (switchInputs.text) text = switchInputs.text;
         } else if (edgeType === "video") {
@@ -405,7 +468,20 @@ export function getConnectedInputsPure(
     }
   }
 
-  return { images, videos, audio, model3d, text, textItems, imageBatchItems, dynamicInputs, easeCurve };
+  return {
+    images,
+    videos,
+    audio,
+    model3d,
+    text,
+    textItems,
+    imageBatchItems,
+    imageBatchPrompts,
+    imageBatchRequestsAtATime,
+    imageBatchSourceNodeId,
+    dynamicInputs,
+    easeCurve,
+  };
 }
 
 /**
