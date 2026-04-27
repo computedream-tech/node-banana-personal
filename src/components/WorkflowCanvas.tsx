@@ -24,6 +24,7 @@ import { useToast } from "@/components/Toast";
 import dynamic from "next/dynamic";
 import {
   ImageInputNode,
+  ImageBatchArrayNode,
   AudioInputNode,
   VideoInputNode,
   AnnotationNode,
@@ -85,6 +86,7 @@ import { useFTUXStore } from "@/store/ftuxStore";
 
 const nodeTypes: NodeTypes = {
   imageInput: ImageInputNode,
+  imageBatchArray: ImageBatchArrayNode,
   audioInput: AudioInputNode,
   videoInput: VideoInputNode,
   annotation: AnnotationNode,
@@ -145,6 +147,8 @@ const getNodeHandles = (nodeType: string): { inputs: string[]; outputs: string[]
   switch (nodeType) {
     case "imageInput":
       return { inputs: ["reference"], outputs: ["image"] };
+    case "imageBatchArray":
+      return { inputs: [], outputs: ["image"] };
     case "audioInput":
       return { inputs: ["audio"], outputs: ["audio"] };
     case "videoInput":
@@ -450,6 +454,7 @@ export function WorkflowCanvas() {
   // Node title mapping for FloatingNodeHeaders
   const NODE_TITLES: Record<string, string> = {
     imageInput: 'Image Input',
+    imageBatchArray: 'Image Batch Array',
     audioInput: 'Audio Input',
     videoInput: 'Video Input',
     annotation: 'Annotation',
@@ -1593,6 +1598,7 @@ export function WorkflowCanvas() {
           // Offset by half the default node dimensions to center it
           const defaultDimensions: Record<NodeType, { width: number; height: number }> = {
             imageInput: { width: 300, height: 280 },
+            imageBatchArray: { width: 840, height: 560 },
             audioInput: { width: 300, height: 200 },
             videoInput: { width: 300, height: 280 },
             annotation: { width: 300, height: 280 },
@@ -2188,6 +2194,8 @@ export function WorkflowCanvas() {
             switch (node.type) {
               case "imageInput":
                 return "#3b82f6";
+              case "imageBatchArray":
+                return "#9333ea";
               case "audioInput":
                 return "#a78bfa";
               case "videoInput":
@@ -2243,6 +2251,7 @@ export function WorkflowCanvas() {
           {allNodes.map((node) => {
             // Groups don't get floating headers
             if (node.type === "group" as any) return null;
+            if (node.type === "imageBatchArray") return null;
 
             const defaultWidth = defaultNodeDimensions[node.type as NodeType]?.width ?? 250;
             const headerWidth = node.measured?.width || (node.style?.width as number) || defaultWidth;

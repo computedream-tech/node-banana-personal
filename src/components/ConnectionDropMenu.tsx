@@ -219,6 +219,17 @@ const IMAGE_SOURCE_OPTIONS: MenuOption[] = [
     ),
   },
   {
+    type: "imageBatchArray",
+    label: "Image Batch Array",
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 7V5.75A1.75 1.75 0 017.75 4h8.5A1.75 1.75 0 0118 5.75v8.5A1.75 1.75 0 0116.25 16H15" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 9.75A1.75 1.75 0 015.75 8h8.5A1.75 1.75 0 0116 9.75v8.5A1.75 1.75 0 0114.25 20h-8.5A1.75 1.75 0 014 18.25v-8.5z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16l1.75-1.75a1 1 0 011.42 0L13 16m-5-4h.01" />
+      </svg>
+    ),
+  },
+  {
     type: "glbViewer",
     label: "3D Viewer",
     icon: (

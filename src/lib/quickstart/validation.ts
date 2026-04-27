@@ -43,6 +43,7 @@ const VALID_HANDLE_TYPES = ["image", "text", "audio", "video", "easeCurve", "3d"
 // Default node dimensions
 const DEFAULT_DIMENSIONS: Record<NodeType, { width: number; height: number }> = {
   imageInput: { width: 300, height: 280 },
+  imageBatchArray: { width: 840, height: 560 },
   audioInput: { width: 300, height: 200 },
   videoInput: { width: 300, height: 280 },
   annotation: { width: 300, height: 280 },
@@ -226,6 +227,11 @@ function createDefaultNodeData(type: NodeType): WorkflowNodeData {
         image: null,
         filename: null,
         dimensions: null,
+      };
+    case "imageBatchArray":
+      return {
+        rows: [],
+        requestsAtATime: 1,
       };
     case "audioInput":
       return {

@@ -173,7 +173,7 @@ export async function executeNanoBanana(
 
       if (result.success && result.image) {
         const timestamp = Date.now();
-        const imageId = `${timestamp}`;
+        const imageId = `${timestamp}-${Math.random().toString(36).slice(2, 9)}`;
 
         // Save to global history
         addToGlobalHistory({
@@ -192,7 +192,9 @@ export async function executeNanoBanana(
           aspectRatio: nodeData.aspectRatio,
           model: nodeData.model,
         };
-        const updatedHistory = [newHistoryItem, ...(nodeData.imageHistory || [])].slice(0, 50);
+        const latestNode = getNodes().find((n) => n.id === node.id);
+        const latestData = (latestNode?.data || nodeData) as NanoBananaNodeData;
+        const updatedHistory = [newHistoryItem, ...(latestData.imageHistory || [])].slice(0, 50);
 
         updateNodeData(node.id, {
           outputImage: result.image,

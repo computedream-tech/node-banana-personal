@@ -1,4 +1,5 @@
 export { ImageInputNode } from "./ImageInputNode";
+export { ImageBatchArrayNode } from "./ImageBatchArrayNode";
 export { AudioInputNode } from "./AudioInputNode";
 export { VideoInputNode } from "./VideoInputNode";
 export { AnnotationNode } from "./AnnotationNode";

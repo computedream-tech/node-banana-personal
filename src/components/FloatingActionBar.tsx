@@ -14,6 +14,7 @@ const ALL_NODES_CATEGORIES: { label: string; nodes: { type: NodeType; label: str
     label: "Input",
     nodes: [
       { type: "imageInput", label: "Image Input" },
+      { type: "imageBatchArray", label: "Image Batch Array" },
       { type: "audioInput", label: "Audio Input" },
       { type: "videoInput", label: "Video Input" },
       { type: "glbViewer", label: "3D Viewer" },
