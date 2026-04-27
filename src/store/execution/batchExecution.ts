@@ -16,10 +16,13 @@ import type {
 import type { NodeExecutionContext } from "./types";
 import { executeNanoBanana } from "./nanoBananaExecutor";
 import { executeGenerateVideo } from "./generateVideoExecutor";
+import { executeGenerate3D } from "./generate3dExecutor";
 import { executeGenerateAudio } from "./generateAudioExecutor";
 import { executeLlmGenerate } from "./llmGenerateExecutor";
 
-const BATCH_NODE_TYPES = new Set(["nanoBanana", "generateVideo", "generateAudio", "llmGenerate"]);
+const TEXT_BATCH_NODE_TYPES = new Set(["nanoBanana", "generateVideo", "generateAudio", "llmGenerate"]);
+const IMAGE_BATCH_NODE_TYPES = new Set(["nanoBanana", "generateVideo", "generate3d", "llmGenerate"]);
+const BATCH_NODE_TYPES = new Set([...TEXT_BATCH_NODE_TYPES, ...IMAGE_BATCH_NODE_TYPES]);
 
 type BatchOptions = { useStoredFallback?: boolean };
 type GalleryBatchOutput = { index: number; image: string };
@@ -55,7 +58,7 @@ function getStoredFallbackInputs(executionCtx: NodeExecutionContext): {
   return { inputImages, inputPrompt };
 }
 
-async function executeBatchNodeOnce(
+async function executeBatchableNodeOnce(
   executionCtx: NodeExecutionContext,
   options?: BatchOptions,
 ): Promise<void> {
@@ -65,6 +68,9 @@ async function executeBatchNodeOnce(
       break;
     case "generateVideo":
       await executeGenerateVideo(executionCtx, options);
+      break;
+    case "generate3d":
+      await executeGenerate3D(executionCtx, options);
       break;
     case "generateAudio":
       await executeGenerateAudio(executionCtx, options);
@@ -117,7 +123,7 @@ async function runTextBatch(
       },
     };
 
-    await executeBatchNodeOnce(batchCtx, options);
+    await executeBatchableNodeOnce(batchCtx, options);
 
     if (i < totalItems - 1) {
       executionCtx.updateNodeData(node.id, {
@@ -266,7 +272,7 @@ async function runImageBatch(
       },
     };
 
-    await executeNanoBanana(batchCtx, options);
+    await executeBatchableNodeOnce(batchCtx, options);
   };
 
   try {
@@ -306,8 +312,9 @@ async function runImageBatch(
  *
  * If the node type supports batching and has textItems from upstream array
  * nodes, iterates through each item and runs the executor individually.
- * If a Nano Banana node has imageBatchItems from an Image Batch Array node,
- * runs once per row and appends that row's images after normal upstream images.
+ * If a supported image-consuming node has imageBatchItems from an Image Batch
+ * Array node, runs once per row and appends that row's images after normal
+ * upstream images.
  *
  * @returns `true` if batch execution was performed, `false` if the node
  *          should proceed with normal single-item execution.
@@ -332,7 +339,10 @@ export async function runBatchIfApplicable(
     return false;
   }
 
-  if (hasImageBatch && node.type === "nanoBanana") {
+  const canTextBatch = TEXT_BATCH_NODE_TYPES.has(node.type);
+  const canImageBatch = IMAGE_BATCH_NODE_TYPES.has(node.type);
+
+  if (hasImageBatch && canImageBatch) {
     if (hasTextBatch && textItems.length !== imageBatchItems.length) {
       // TODO: Define combined text/image batching semantics for mismatched
       // lengths. Preserve existing Array batch behavior for now.
@@ -342,7 +352,7 @@ export async function runBatchIfApplicable(
         textBatchCount: textItems.length,
         imageBatchCount: imageBatchItems.length,
       });
-      return runTextBatch(executionCtx, textItems, options);
+      return canTextBatch ? runTextBatch(executionCtx, textItems, options) : false;
     }
 
     return runImageBatch(
@@ -355,7 +365,7 @@ export async function runBatchIfApplicable(
     );
   }
 
-  if (hasTextBatch) {
+  if (hasTextBatch && canTextBatch) {
     return runTextBatch(executionCtx, textItems, options);
   }
 
